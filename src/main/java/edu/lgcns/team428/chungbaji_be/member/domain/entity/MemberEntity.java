@@ -90,4 +90,6 @@ public class MemberEntity {
     public enum MemberStatus {
         ACTIVE, INACTIVE, WITHDRAWN
     }
+
+
 }
