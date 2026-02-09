@@ -8,7 +8,7 @@ import java.time.LocalDate;
 @Table(name = "policy")
 @Builder
 @Getter
-@NoArgsConstructor(access = AccessLevel.PROTECTED)
+@NoArgsConstructor
 @AllArgsConstructor
 public class PolicyEntity {
 
