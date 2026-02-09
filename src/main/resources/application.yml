@@ -1,0 +1,5 @@
+spring:
+    application:
+        name: chungbaji-be
+    profiles:
+        default: dev
