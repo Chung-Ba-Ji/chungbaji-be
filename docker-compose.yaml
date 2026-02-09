@@ -1,0 +1,18 @@
+services:
+  mariadb:
+    image: mariadb:10.11
+    container_name: chung-ba-ji-db
+    restart: always
+    environment:
+      # .env 파일에서 환경변수명 가져온다
+      MARIADB_ROOT_PASSWORD: ${DB_PASSWORD}
+      MARIADB_DATABASE: chungbaji
+      MARIADB_USER: ${DB_USERNAME}
+      MARIADB_PASSWORD: ${DB_PASSWORD}
+    ports:
+      - "3306:3306"
+    volumes:
+      # 초기 데이터 자동 주입을 위한 폴더
+      - ./db/init:/docker-entrypoint-initdb.d
+      # DB 데이터 영구 보관용
+      - ./mariadb_data:/var/lib/mysql
