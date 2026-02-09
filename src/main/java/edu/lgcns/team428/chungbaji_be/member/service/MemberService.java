@@ -18,9 +18,9 @@ public class MemberService {
     public MemberResponseDTO signUp(MemberRequestDTO request){
         System.out.println("member service signUp call");
 
-        MemberEntity entity = memberRepository.save(MemberRequestDTO.toEntity(request));
+    //    MemberEntity entity = memberRepository.save(MemberRequestDTO.toEntity(request));
 
-        return MemberResponseDTO.fromEntity(entity) ;
+        return null ;
     }
     
     // 회원정보 수정 

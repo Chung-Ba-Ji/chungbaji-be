@@ -2,7 +2,9 @@ package edu.lgcns.team428.chungbaji_be.member.domain.dto;
 
 import java.time.LocalDate;
 
-import edu.lgcns.team428.chungbaji_be.member.domain.entity.MemberEntity;
+
+import edu.lgcns.team428.chungbaji_be.bookmark.domain.entity.BookmarkEntity;
+
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -21,14 +23,12 @@ public class MemberRequestDTO {
     private String phone_num;
     private char gender;
     private LocalDate birth_date;
-    
-    // 코드로 변환 필요 
-    private String region;
-    private String income ;
 
-    // 외부 테이블 참조 필요 
-    public static MemberEntity toEntity(MemberRequestDTO request){
-        return MemberEntity.builder().email(request.getEmail()).password(request.getPassword())
-        .build();
-    }
+    private int region_code;
+    private int education_code;
+    private int job_code;
+    private int major_code;
+    private int income_code;
+    private int special_code;
+
 }
