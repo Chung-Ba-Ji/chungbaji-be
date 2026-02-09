@@ -36,9 +36,7 @@ out/
 ### VS Code ###
 .vscode/
 .env
-<<<<<<< Updated upstream
-=======
 
 # MariaDB 데이터 폴더 제외
 mariadb_data/
->>>>>>> Stashed changes
+
