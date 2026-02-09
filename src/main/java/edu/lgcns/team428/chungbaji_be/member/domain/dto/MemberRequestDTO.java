@@ -2,6 +2,7 @@ package edu.lgcns.team428.chungbaji_be.member.domain.dto;
 
 import java.time.LocalDate;
 
+import edu.lgcns.team428.chungbaji_be.bookmark.domain.entity.BookmarkEntity;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -26,4 +27,5 @@ public class MemberRequestDTO {
     private int major_code;
     private int income_code;
     private int special_code;
+
 }
