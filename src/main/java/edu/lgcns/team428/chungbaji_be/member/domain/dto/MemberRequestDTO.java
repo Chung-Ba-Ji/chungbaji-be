@@ -20,10 +20,8 @@ public class MemberRequestDTO {
     private String phone_num;
     private char gender;
     private LocalDate birth_date;
-    private int region_code;
-    private int education_code;
-    private int job_code;
-    private int major_code;
-    private int income_code;
-    private int special_code;
+    
+    // 코드로 변환 필요 
+    private String region;
+    private String income ;
 }
