@@ -34,7 +34,8 @@ public class MemberEntity {
     
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private int member_id;
+     @Column(name = "member_id")
+    private Integer memberId;
 
     @Column(nullable = false, unique = true, length = 255)
     private String email;
@@ -51,6 +52,7 @@ public class MemberEntity {
     @Column(nullable = false, length = 1)
     private String gender;
 
+    @Column(name = "birth_date")
     private LocalDate birthDate;
 
     // @ManyToOne(fetch = FetchType.LAZY)
@@ -82,10 +84,10 @@ public class MemberEntity {
     @Builder.Default
     private MemberStatus status = MemberStatus.ACTIVE;
 
-    @Column(nullable = false, updatable = false, insertable = false)
+    @Column(name = "created_at", nullable = false, updatable = false, insertable = false)
     private LocalDateTime createdAt;
 
-    @Column(nullable = false, insertable = false)
+    @Column(name = "updated_at", nullable = false, insertable = false)
     private LocalDateTime updatedAt;
 
     public enum MemberStatus {
