@@ -86,6 +86,10 @@ CREATE TABLE policy (
     title               VARCHAR(255)    NOT NULL                    COMMENT '정책명 (API: plcyNm)',
     policy_description  TEXT 	                                    COMMENT '정책 설명 (API: plcyExplnCn)',
     support_content     TEXT 							            COMMENT '지원 내용 (API: plcySprtCn)',
+    -- [추가] 키워드 시각화 및 특화 검색을 위한 컬럼
+    plcy_kywd_nm        TEXT                                        COMMENT '정책 키워드 (API: plcyKywdNm)',
+    sbiz_cd             VARCHAR(20)                                 COMMENT '정책특화 요건코드 (API: sBizCd)',
+    
     category_main       INT             NOT NULL	                COMMENT '대분류 (API: lclsfNm)',
     category_sub        INT 				 			            COMMENT '중분류 (API: mclsfNm)',
     region_code         VARCHAR(5) 				                    COMMENT '지역 코드 (법정동코드 앞 5자리)',
