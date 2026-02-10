@@ -11,6 +11,7 @@ public class PolicyResponseDTO {
     private Integer policyId; 
     private String title;
     private String policyDescription; 
+    private String supportContent;
     private String regionCode; 
     private Integer viewCount; 
     private LocalDate applyEndDate; 

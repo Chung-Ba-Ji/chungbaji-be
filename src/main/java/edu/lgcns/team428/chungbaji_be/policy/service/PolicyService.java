@@ -82,7 +82,9 @@ public class PolicyService {
                             policy.setApplyStartDate(LocalDate.parse(dates[0].trim(), fmt));
                             policy.setApplyEndDate(LocalDate.parse(dates[1].trim(), fmt));
                         } catch (Exception e) {
-                            policy.setApplyStartDate(LocalDate.now());
+                            log.warn("날짜 파싱 실패: {}, bizId: {}", aplyYmd, bizId);
+                            policy.setApplyStartDate(null);
+                            policy.setApplyEndDate(null);
                         }
                     }
 
@@ -119,6 +121,7 @@ public class PolicyService {
             .policyId(entity.getPolicyId())
             .title(entity.getTitle())
             .policyDescription(entity.getPolicyDescription())
+            .supportContent(entity.getSupportContent())
             .regionCode(entity.getRegionCode())
             .viewCount(entity.getViewCount())
             .applyEndDate(entity.getApplyEndDate())

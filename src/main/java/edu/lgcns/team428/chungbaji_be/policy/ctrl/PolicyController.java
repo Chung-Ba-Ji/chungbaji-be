@@ -32,7 +32,6 @@ public class PolicyController {
     // 상세 조회 + 조회수 증가 (한번에 처리하거나 따로 분리)
     @GetMapping("/{id}")
     public ResponseEntity<PolicyResponseDTO> getDetail(@PathVariable Integer id) {
-        policyService.increaseViewCount(id); // 조회수 증가
-        return ResponseEntity.ok(policyService.getPolicyDetail(id));
+        return ResponseEntity.ok(policyService.getPolicyDetailAndIncreaseViewCount(id));
     }
 }
