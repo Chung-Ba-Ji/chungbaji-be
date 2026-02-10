@@ -1,9 +1,16 @@
 package edu.lgcns.team428.chungbaji_be.schedule.service;
 
+import java.time.LocalDateTime;
+import java.util.List;
+
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import lombok.RequiredArgsConstructor;
+import edu.lgcns.team428.chungbaji_be.member.domain.entity.MemberEntity;
+import edu.lgcns.team428.chungbaji_be.policy.domain.entity.PolicyEntity;
 import edu.lgcns.team428.chungbaji_be.schedule.dao.ScheduleRepository;
+import edu.lgcns.team428.chungbaji_be.schedule.domain.dto.ScheduleResponseDTO;
+import edu.lgcns.team428.chungbaji_be.schedule.domain.entity.ScheduleEntity;
 
 @Service
 @Transactional
@@ -12,4 +19,63 @@ public class ScheduleService {
     
     private final ScheduleRepository scheduleRepository;
 
+    @Transactional
+    public void createScheduleFromBookmark(MemberEntity member, PolicyEntity policy) {
+        // 이미 등록된 일정인지 확인 (중복 방지)
+        if (scheduleRepository.existsByMemberAndPolicy(member, policy)) {
+            return;
+        }
+
+        ScheduleEntity schedule = ScheduleEntity.builder()
+                .member(member)
+                .policy(policy)
+                .startDate(policy.getApplyStartDate())
+                .endDate(policy.getApplyEndDate())
+                .isAlarm("N")
+                .status("UPCOMING")
+                // createdAt은 Entity의 @PrePersist에서 처리되므로 builder에서 빼도 됩니다.
+                .build();
+        scheduleRepository.save(schedule);
+    }
+
+    // 북마크 해제 시 일정 삭제
+    @Transactional
+    public void deleteScheduleFromBookmark(MemberEntity member, PolicyEntity policy) {
+        scheduleRepository.deleteByMemberAndPolicy(member, policy);
+    }
+
+    @Transactional(readOnly = true)
+    public List<ScheduleResponseDTO> getMySchedules(String email) {
+        List<ScheduleEntity> entities = scheduleRepository.findAllByMember_Email(email);
+
+        return entities.stream()
+                .map(this::convertToResponseDTO)
+                .toList();
+    }
+
+    // DTO 변환 로직 공통화 및 D-DAY 계산
+    private ScheduleResponseDTO convertToResponseDTO(ScheduleEntity entity) {
+        long dDay = java.time.temporal.ChronoUnit.DAYS.between(java.time.LocalDate.now(), entity.getEndDate());
+        
+        return ScheduleResponseDTO.builder()
+                .scheduleId(entity.getScheduleId())
+                .policyId(entity.getPolicy().getPolicyId())
+                .policyTitle(entity.getPolicy().getTitle())
+                .startDate(entity.getStartDate())
+                .endDate(entity.getEndDate())
+                .isAlarm(entity.getIsAlarm())
+                .status(entity.getStatus())
+                .createdAt(entity.getCreatedAt())
+                .dDay(dDay) // DTO에 dDay 필드 추가 필요!
+                .build();
+    }
+
+    //상세 조회
+    @Transactional(readOnly = true)
+    public ScheduleResponseDTO getScheduleDetail(Integer id) {
+        ScheduleEntity entity = scheduleRepository.findById(id)
+                .orElseThrow(() -> new IllegalArgumentException("해당 일정이 없습니다. id=" + id));
+
+        return convertToResponseDTO(entity); // 공통 변환 로직 사용
+    }
 }
