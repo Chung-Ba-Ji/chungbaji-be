@@ -52,4 +52,22 @@ public class ScheduleService {
                 .toList();
     }
 
+    //일정 상세 조회
+    @Transactional(readOnly = true)
+    public ScheduleResponseDTO getScheduleDetail(Integer id) {
+        ScheduleEntity entity = scheduleRepository.findById(id)
+                .orElseThrow(() -> new IllegalArgumentException("해당 일정이 없습니다. id=" + id));
+
+        return ScheduleResponseDTO.builder()
+                .scheduleId(entity.getScheduleId())
+                .policyId(entity.getPolicy().getPolicyId())
+                .policyTitle(entity.getPolicy().getTitle())
+                .startDate(entity.getStartDate())
+                .endDate(entity.getEndDate())
+                .isAlarm(entity.getIsAlarm())
+                .status(entity.getStatus())
+                .createdAt(entity.getCreatedAt())
+                .build();
+    }
+
 }

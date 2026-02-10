@@ -25,7 +25,7 @@ public class ScheduleController {
     // 일정 상세 조회 (정책 요약 정보 포함)
     @GetMapping("/{id}")
     public ResponseEntity<ScheduleResponseDTO> getDetail(@PathVariable Integer id) {
-        // TODO: 일정 단건 조회 로직 필요
-        return ResponseEntity.ok().build(); 
+        
+        return ResponseEntity.ok(scheduleService.getScheduleDetail(id));
     }
 }
