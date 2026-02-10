@@ -41,7 +41,6 @@ public class PolicyService {
                          "&pageSize=10" + 
                          "&rtnType=json";
         
-        log.info("요청 URL: {}", fullUrl);
         try {
             ResponseEntity<Map> responseEntity = restTemplate.exchange(fullUrl, HttpMethod.GET, null, Map.class);
             Map<String, Object> response = responseEntity.getBody();
