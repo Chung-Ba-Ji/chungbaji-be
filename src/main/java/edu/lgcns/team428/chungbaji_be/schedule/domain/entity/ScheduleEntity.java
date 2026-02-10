@@ -44,4 +44,11 @@ public class ScheduleEntity {
 
     @Column(name = "updated_at")
     private LocalDateTime updatedAt;
+
+    @PrePersist
+    public void prePersist() {
+        this.createdAt = LocalDateTime.now();
+        this.updatedAt = LocalDateTime.now();
+        if (this.isAlarm == null) this.isAlarm = "N";
+    }
 }
