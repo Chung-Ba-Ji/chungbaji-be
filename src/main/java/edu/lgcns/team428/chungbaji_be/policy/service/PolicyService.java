@@ -121,6 +121,7 @@ public class PolicyService {
             .policyId(entity.getPolicyId())
             .title(entity.getTitle())
             .policyDescription(entity.getPolicyDescription())
+            .supportContent(entity.getSupportContent())
             .regionCode(entity.getRegionCode())
             .viewCount(entity.getViewCount())
             .applyEndDate(entity.getApplyEndDate())
