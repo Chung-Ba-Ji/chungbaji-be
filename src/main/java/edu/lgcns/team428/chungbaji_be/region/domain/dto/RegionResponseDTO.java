@@ -1,6 +1,6 @@
 package edu.lgcns.team428.chungbaji_be.region.domain.dto;
 
-import edu.lgcns.team428.chungbaji_be.region.domain.entity.Region;
+import edu.lgcns.team428.chungbaji_be.region.domain.entity.RegionEntity;
 import lombok.*;
 
 @Builder
@@ -16,7 +16,7 @@ public class RegionResponseDTO {
     private Integer level;
     private String parentRegionCode;
 
-    public static RegionResponseDTO fromEntity(Region entity) {
+    public static RegionResponseDTO fromEntity(RegionEntity entity) {
         return RegionResponseDTO.builder()
                 .regionId(entity.getRegionId())
                 .regionCode(entity.getRegionCode())
