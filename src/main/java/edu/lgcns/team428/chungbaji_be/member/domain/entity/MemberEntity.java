@@ -31,10 +31,11 @@ import lombok.ToString;
 @AllArgsConstructor
 @NoArgsConstructor
 public class MemberEntity {
-    
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private int member_id;
+    @Column(name = "member_id")
+    private Integer memberId;
 
     @Column(nullable = false, unique = true, length = 255)
     private String email;
@@ -51,6 +52,7 @@ public class MemberEntity {
     @Column(nullable = false, length = 1)
     private String gender;
 
+    @Column(name = "birth_date")
     private LocalDate birthDate;
 
     // @ManyToOne(fetch = FetchType.LAZY)
@@ -80,26 +82,42 @@ public class MemberEntity {
     @Enumerated(EnumType.STRING)
     @Column(name = "status", nullable = false, length = 20)
     @Builder.Default
-    private MemberStatus status = MemberStatus.ACTIVE;
+    private MemberStatus status = MemberStatus.ACTIVE; // 기본적으로 회원 정보 생성 시 자동 활성화
 
-    @Column(nullable = false, updatable = false, insertable = false)
+    @Column(name = "created_at", nullable = false, updatable = false, insertable = false)
     private LocalDateTime createdAt;
 
-    @Column(nullable = false, insertable = false)
+    @Column(name = "updated_at", nullable = false, insertable = false)
     private LocalDateTime updatedAt;
 
     public enum MemberStatus {
         ACTIVE, INACTIVE, WITHDRAWN
     }
 
-    // 비번 해싱 저장 
-    public static MemberEntity from(MemberRequestDTO dto, String password){
+    // 비번 해싱 저장
+    public static MemberEntity from(MemberRequestDTO dto, String password) {
         return MemberEntity.builder().email(dto.getEmail()).password(password)
-            .nickname(dto.getNickname()).phoneNum(dto.getPhone_num())
-            .gender(dto.getGender()).birthDate(dto.getBirth_date()).build();
+                .nickname(dto.getNickname()).phoneNum(dto.getPhone_num())
+                .gender(dto.getGender()).birthDate(dto.getBirth_date()).build();
     }
 
-    public void updatePwd(String encodedPassword){
+    public void updatePwd(String encodedPassword) {
         password = encodedPassword;
     }
+
+    // 이메일이 DB에 존재하지만 비활성화인 경우 재활성화
+    public void reactivate(MemberRequestDTO dto, String encodedPassword) {
+        this.password = encodedPassword;
+        this.nickname = dto.getNickname();
+        this.phoneNum = dto.getPhone_num();
+        this.gender = dto.getGender();
+        this.birthDate = dto.getBirth_date();
+        this.status = MemberStatus.ACTIVE;
+    }
+
+    // 회원 탈퇴 시 상태 변경
+    public void withdraw() {
+    this.status = MemberStatus.WITHDRAWN;
+}
+
 }

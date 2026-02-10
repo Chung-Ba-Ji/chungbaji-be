@@ -19,18 +19,18 @@ public class BookmarkResponseDTO {
     private Integer memberId;
     private Integer policyId;
     private BookmarkEntity.BookmarkStatus status;
-    private LocalDateTime createAt;
-    private LocalDateTime updateAt;
+    private LocalDateTime createdAt;
+    private LocalDateTime updatedAt;
 
     // DTO로 변환
     public static BookmarkResponseDTO fromEntity(BookmarkEntity entity) {
         return BookmarkResponseDTO.builder()
-                .bookmarkId(entity.getBookmark_id())
-                .memberId(entity.getMember().getMember_id())
+                .bookmarkId(entity.getBookmarkId())
+                .memberId(entity.getMember().getMemberId())
                 .policyId(entity.getPolicy().getPolicyId())
                 .status(entity.getStatus())
-                .createAt(entity.getCreateAt())
-                .updateAt(entity.getUpdateAt())
+                .createdAt(entity.getCreatedAt())
+                .updatedAt(entity.getUpdatedAt())
                 .build();
     }
 }

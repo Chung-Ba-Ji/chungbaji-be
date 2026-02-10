@@ -25,6 +25,7 @@ repositories {
 }
 
 dependencies {
+  
 	// redis lib
 	implementation 'org.springframework.boot:spring-boot-starter-data-redis'
 
@@ -41,6 +42,7 @@ dependencies {
 
 	// invalidation : JSR - 303 표준 (DTO 데이터의 유효성 체크를 도와주는 라이브러리)
 	implementation group: 'org.springframework.boot', name : 'spring-boot-starter-validation'
+
 
 	// JPA 및 MariaDB 연결
     implementation 'org.springframework.boot:spring-boot-starter-data-jpa'

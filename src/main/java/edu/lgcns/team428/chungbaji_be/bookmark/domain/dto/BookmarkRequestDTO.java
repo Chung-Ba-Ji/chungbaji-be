@@ -25,7 +25,6 @@ public class BookmarkRequestDTO {
         return BookmarkEntity.builder()
                 .member(member)
                 .policy(policy)
-                .status(status != null ? status : BookmarkStatus.CREATED)
                 .build();
     }
 }
