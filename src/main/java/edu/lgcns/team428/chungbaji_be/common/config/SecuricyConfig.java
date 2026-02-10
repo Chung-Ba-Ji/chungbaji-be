@@ -81,7 +81,7 @@ public class SecuricyConfig {
                 
                 // 인증이 반드시 필요한 엔드포인트
                 .requestMatchers(
-                    "api/members/logout",
+                    "/api/members/logout",
                     "/api/members/update/**",
                     "/api/members/delete/**",
                     "/api/bookmarks/**"
