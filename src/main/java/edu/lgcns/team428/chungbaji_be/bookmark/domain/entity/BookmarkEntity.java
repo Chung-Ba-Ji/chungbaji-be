@@ -23,7 +23,7 @@ import lombok.ToString;
 
 
 @Entity
-@Table(name = "BOOKMARK")
+@Table(name = "bookmark")
 @Builder
 @Getter
 @ToString

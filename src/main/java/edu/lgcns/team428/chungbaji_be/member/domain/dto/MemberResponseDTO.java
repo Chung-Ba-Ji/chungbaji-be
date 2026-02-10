@@ -17,7 +17,7 @@ import lombok.ToString;
 @NoArgsConstructor
 public class MemberResponseDTO {
     private int memberId;
-    private String email; // 비번은 제외
+    private String email;
     private String nickname;
     private String phoneNum;
     private String gender;
