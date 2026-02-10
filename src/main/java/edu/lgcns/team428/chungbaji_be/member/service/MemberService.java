@@ -38,19 +38,30 @@ public class MemberService {
 
         // 비밀번호 해싱
         String encodedPassword = passwordEncoder.encode(request.getPassword());
-        MemberEntity member = MemberEntity.from(request, encodedPassword);
 
-        MemberEntity entity = memberRepository.save(member);
+        MemberEntity entity = memberRepository.findByEmail(request.getEmail())
+                .map(existing -> {
+                    // 이메일이 있는데 status=ACTIVE → 중복가입 에러
+                    if (existing.getStatus() == MemberEntity.MemberStatus.ACTIVE) {
+                        throw new RuntimeException("already exist");
+                    }
+
+                    // 2) 이메일이 있는데 status=INACTIVE → 재활성화(상태 ACTIVE + 정보 갱신)
+                    existing.reactivate(request, encodedPassword);
+                    return existing;
+                })
+                .orElseGet(() -> memberRepository.save(MemberEntity.from(request, encodedPassword)));
 
         return MemberResponseDTO.fromEntity(entity);
     }
 
-    // 회원정보 수정 - code/region 엔티티 완성 후 수정
+    // 회원정보 수정 - code/region 엔티티 완성 후 수정 필요
     @Transactional
-    public MemberResponseDTO update(Integer id, MemberRequestDTO request) {
+    public MemberResponseDTO update(String email, MemberRequestDTO request) {
         System.out.println("member service update call");
 
-        MemberEntity entity = memberRepository.findById(id).orElseThrow(() -> new RuntimeException("cannot find"));
+        MemberEntity entity = memberRepository.findByEmail(email)
+                .orElseThrow(() -> new RuntimeException("cannot find"));
 
         return null;
     }
@@ -68,7 +79,7 @@ public class MemberService {
 
         // 해싱해서 DB에 저장
         String encoded = passwordEncoder.encode(tempPassword);
-        
+
         entity.updatePwd(encoded);
 
         return tempPassword;
@@ -77,12 +88,17 @@ public class MemberService {
 
     // 회원 탈퇴
     @Transactional
-    public void delete(Integer id) {
+    public void deleteByEmail(String email) {
         System.out.println("member service delete call");
 
-        MemberEntity entity = memberRepository.findById(id).orElseThrow(() -> new RuntimeException("cannot find"));
+        MemberEntity entity = memberRepository.findByEmail(email)
+                .orElseThrow(() -> new RuntimeException("member not found"));
 
-        memberRepository.delete(entity);
+        // 이미 탈퇴한 회원인 경우
+        if (entity.getStatus() == MemberEntity.MemberStatus.WITHDRAWN) {
+            return;
+        }
+        entity.withdraw(); // JPA의 영속성
     }
 
     // 로그인
