@@ -3,13 +3,103 @@ package edu.lgcns.team428.chungbaji_be.member.ctrl;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import edu.lgcns.team428.chungbaji_be.member.domain.dto.MemberRequestDTO;
+import edu.lgcns.team428.chungbaji_be.member.domain.dto.MemberResponseDTO;
+import edu.lgcns.team428.chungbaji_be.member.domain.dto.SearchPwdRequestDTO;
 import edu.lgcns.team428.chungbaji_be.member.service.MemberService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestHeader;
+import org.springframework.web.bind.annotation.PutMapping;
+
+import java.util.Map;
+
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.http.HttpHeaders;
 
 @RestController
 @RequestMapping("/member")
 @RequiredArgsConstructor
 public class MemberController {
-    private final MemberService memberService ;
-    
+    private final MemberService memberService;
+
+    // 회원가입
+    @PostMapping("/signUp")
+    public ResponseEntity<MemberResponseDTO> signUp(@RequestBody MemberRequestDTO request) {
+        System.out.println("member controller signUp call");
+
+        MemberResponseDTO created = memberService.signUp(request);
+
+        return ResponseEntity.status(HttpStatus.CREATED).body(created);
+    }
+
+    // 로그인
+    @PostMapping("/login")
+    public ResponseEntity<MemberResponseDTO> login(@RequestBody MemberRequestDTO request) {
+        System.out.println("member controller login call");
+
+        Map<String, Object> map = memberService.login(request);
+
+        HttpHeaders headers = new HttpHeaders();
+        headers.add("Authorization", "Bearer " + map.get("access-token"));
+        headers.add("Refresh-token", (String) (map.get("refresh-token")));
+        // 브라우저는 기본적으로 JS코드가 읽을 수 있는 응답헤더를 제한하기 때문에 수동으로 허용해줘야 함
+        headers.add("Access-Control-Expose-Headers", "Authorization,Refresh-token");
+
+        System.out.println("access token value : " + headers.get("Authorization"));
+
+        if (map.size() != 0) {
+            return ResponseEntity.status(HttpStatus.OK).headers(headers).body((MemberResponseDTO) map.get("response"));
+        } else {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).headers(headers).body(null);
+        }
+    }
+
+    // 로그아웃
+    @PostMapping("/logout")
+    public ResponseEntity<Void> logout(@RequestHeader("Authorization") String authorization) {
+        System.out.println("member controller login call");
+
+        // 실제 토큰값만 획득
+        String accessToken = authorization.replace("Bearer ", "");
+
+        memberService.logout(accessToken);
+
+        return ResponseEntity.status(HttpStatus.NO_CONTENT).body(null);
+    }
+
+    // 회원정보 수정
+    @PutMapping("/update/{id}")
+    public ResponseEntity<MemberResponseDTO> update(
+            @PathVariable Integer id,
+            @RequestBody MemberRequestDTO request) {
+        System.out.println("member controller update call");
+
+        MemberResponseDTO updated = memberService.update(id, request);
+
+        return ResponseEntity.status(HttpStatus.OK).body(updated);
+    }
+
+    // 비번 찾기
+    @PostMapping("/searchPwd")
+    public ResponseEntity<String> searchPwd(@RequestBody SearchPwdRequestDTO request) {
+        System.out.println("member controller searchPwd call");
+
+        String password = memberService.searchPwd(request.getEmail(), request.getPhone_num());
+
+        return ResponseEntity.status(HttpStatus.OK).body(password);
+    }
+
+    // 회원 탈퇴
+    @DeleteMapping("/delete/{id}")
+    public ResponseEntity<Void> delete(@PathVariable Integer id) {
+        System.out.println("member controller delete call");
+        memberService.delete(id);
+        return ResponseEntity.status(HttpStatus.NO_CONTENT).body(null);
+    }
+
 }

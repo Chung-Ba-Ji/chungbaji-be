@@ -20,7 +20,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.ToString;
 
-// 참조 엔티티 생성되면 주석 해제할 것
+// 참조 엔티티(CodeEntity, RegionEntity) 생성되면 주석 해제할 것
 
 @Entity
 @Table(name = "MEMBER")
@@ -90,4 +90,6 @@ public class MemberEntity {
     public enum MemberStatus {
         ACTIVE, INACTIVE, WITHDRAWN
     }
+
+
 }
