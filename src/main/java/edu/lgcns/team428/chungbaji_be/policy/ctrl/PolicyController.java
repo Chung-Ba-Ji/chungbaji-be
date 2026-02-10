@@ -9,6 +9,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import java.util.List;
+import java.util.Map;
 
 @RestController
 @RequestMapping("/api/policy")
@@ -30,10 +31,29 @@ public class PolicyController {
     }
 
 
-    // 상세 조회 + 조회수 증가 (한번에 처리하거나 따로 분리)
+    // 상세 조회 + 조회수 증가
     @GetMapping("/{id}")
     public ResponseEntity<PolicyResponseDTO> getDetail(@PathVariable Integer id) {
         return ResponseEntity.ok(policyService.getPolicyDetailAndIncreaseViewCount(id));
+    }
+
+
+    // 위젯용 인기/마감임박 데이터
+    @GetMapping("/widgets")
+    public ResponseEntity<Map<String, List<PolicyResponseDTO>>> getWidgets() {
+        return ResponseEntity.ok(policyService.getWidgetData());
+    }
+
+    // 해시태그(키워드) 목록
+    @GetMapping("/keywords")
+    public ResponseEntity<List<String>> getKeywords() {
+        return ResponseEntity.ok(policyService.getAllKeywords());
+    }
+
+    // 맞춤형 정책 추천 (로그인한 유저 정보를 SearchDTO 형태로 넘겨받음)
+    @GetMapping("/recommend")
+    public ResponseEntity<List<PolicyResponseDTO>> getRecommend(PolicySearchDTO searchDTO) {
+        return ResponseEntity.ok(policyService.getRecommendPolicies(searchDTO));
     }
 }
 

@@ -171,4 +171,32 @@ public class PolicyService {
     // DTO 변환 후 반환
     return convertToResponseDTO(entity);
 }
+
+
+
+    // 인기/임박 위젯 데이터 가져오기
+    @Transactional(readOnly = true)
+    public Map<String, List<PolicyResponseDTO>> getWidgetData() {
+        List<PolicyResponseDTO> popular = policyRepository.findTop3ByOrderByViewCountDesc()
+                .stream().map(this::convertToResponseDTO).toList();
+                
+        List<PolicyResponseDTO> urgent = policyRepository.findTop3ByApplyEndDateAfterOrderByApplyEndDateAsc(LocalDate.now())
+                .stream().map(this::convertToResponseDTO).toList();
+
+        return Map.of("popularPolicies", popular, "urgentPolicies", urgent);
+    }
+
+    // 해시태그 리스트 조회
+    @Transactional(readOnly = true)
+    public List<String> getAllKeywords() {
+        return policyRepository.findAllDistinctKeywords();
+    }
+
+    // 맞춤형 추천 (로그인 유저의 정보를 DTO로 받아서 필터링 검색 로직 재활용!)
+    @Transactional(readOnly = true)
+    public List<PolicyResponseDTO> getRecommendPolicies(PolicySearchDTO userProfile) {
+        // 기존에 만드신 searchPolicies와 같은 로직을 타되, 
+        // 유저가 가입할 때 넣은 나이, 지역 등으로 호출하면 그게 바로 추천입니다!
+        return searchPolicies(userProfile);
+    }
 }

@@ -5,6 +5,8 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 import edu.lgcns.team428.chungbaji_be.policy.domain.entity.PolicyEntity;
+
+import java.time.LocalDate;
 import java.util.List;
 import java.util.Optional;
 
@@ -32,5 +34,16 @@ public interface PolicyRepository extends JpaRepository<PolicyEntity, Integer> {
         @Param("incomeCode") Integer incomeCode, 
         @Param("specialCode") Integer specialCode
     );
+
+    // 인기 정책 TOP 3 (조회수 기준)
+    List<PolicyEntity> findTop3ByOrderByViewCountDesc();
+
+    // 마감 임박 정책 TOP 3 (마감일이 오늘 이후인 것 중 가장 가까운 순)
+    @Query("SELECT p FROM PolicyEntity p WHERE p.applyEndDate >= :today ORDER BY p.applyEndDate ASC")
+    List<PolicyEntity> findTop3ByApplyEndDateAfterOrderByApplyEndDateAsc(@Param("today") LocalDate today);
+
+    // 정책 키워드 중복 제거해서 가져오기 (해시태그용)
+    @Query(value = "SELECT DISTINCT plcy_kywd_nm FROM policy WHERE plcy_kywd_nm IS NOT NULL", nativeQuery = true)
+    List<String> findAllDistinctKeywords();
 
 }
