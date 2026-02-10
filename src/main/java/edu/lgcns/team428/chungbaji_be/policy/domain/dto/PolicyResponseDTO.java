@@ -7,13 +7,13 @@ import java.time.LocalDate;
 @Getter
 @NoArgsConstructor
 @AllArgsConstructor
-@ToString
 public class PolicyResponseDTO {
-    private Integer policyId;
+    private Integer policyId; 
     private String title;
-    private String policyDescription;
-    private String regionCode;
-    private Integer viewCount;
-    private LocalDate applyEndDate;
-    private String detailUrl;
+    private String policyDescription; 
+    private String regionCode; 
+    private Integer viewCount; 
+    private LocalDate applyEndDate; 
+    private String detailUrl; 
+    private Long dDay;
 }
