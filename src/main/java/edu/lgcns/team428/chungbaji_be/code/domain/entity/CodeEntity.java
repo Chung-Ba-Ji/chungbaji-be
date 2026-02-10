@@ -7,31 +7,27 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 
 @Entity
-@Table(
-        name = "code",
-        uniqueConstraints = {
-                @UniqueConstraint(
-                        columnNames = {"code_group", "code"}
-                )
-        }
-)
+@Table(name = "code", uniqueConstraints = {
+                @UniqueConstraint(columnNames = { "code_group", "code" })
+})
 @Builder
 @Getter
 @NoArgsConstructor
 @AllArgsConstructor
 public class CodeEntity {
 
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Integer codeId;
+        @Id
+        @GeneratedValue(strategy = GenerationType.IDENTITY)
+        @Column(name = "code_id")
+        private Integer codeId;
 
-    @ManyToOne(fetch = FetchType.LAZY, optional = false)
-    @JoinColumn(referencedColumnName = "codeGroup", nullable = false)
-    private CodeGroupEntity codeGroup;
+        @ManyToOne(fetch = FetchType.LAZY, optional = false)
+        @JoinColumn(name = "code_group_id", referencedColumnName = "code_group_id", nullable = false)
+        private CodeGroupEntity codeGroup;
 
-    @Column(length = 50, nullable = false)
-    private String code;
+        @Column(name = "code", length = 50, nullable = false)
+        private String code;
 
-    @Column(length = 50)
-    private String codeDesc;
+        @Column(name = "code_desc", length = 50)
+        private String codeDesc;
 }

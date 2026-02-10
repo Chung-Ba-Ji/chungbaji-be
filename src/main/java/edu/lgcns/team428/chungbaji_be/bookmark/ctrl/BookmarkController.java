@@ -19,7 +19,7 @@ import edu.lgcns.team428.chungbaji_be.bookmark.service.BookmarkService;
 import lombok.RequiredArgsConstructor;
 
 @RestController
-@RequestMapping("/bookmark")
+@RequestMapping("/bookmarks")
 @RequiredArgsConstructor
 public class BookmarkController {
     private final BookmarkService bookmarkService;

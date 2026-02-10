@@ -23,11 +23,12 @@ public class PolicyController {
         return ResponseEntity.ok("Sync Success");
     }
 
-    // 필터링 검색 (기존에 만드신 것)
+    // 필터링 검색 
     @GetMapping("/list")
     public ResponseEntity<List<PolicyResponseDTO>> getList(PolicySearchDTO searchDTO) {
         return ResponseEntity.ok(policyService.searchPolicies(searchDTO));
     }
+
 
     // 상세 조회 + 조회수 증가 (한번에 처리하거나 따로 분리)
     @GetMapping("/{id}")
@@ -35,3 +36,4 @@ public class PolicyController {
         return ResponseEntity.ok(policyService.getPolicyDetailAndIncreaseViewCount(id));
     }
 }
+

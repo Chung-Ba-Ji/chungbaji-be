@@ -16,12 +16,13 @@ public class CodeGroupEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "code_group_id")
     private Integer codeGroupId;
 
-    @Column(length = 50, nullable = false, unique = true)
+    @Column(name = "code_group", length = 50, nullable = false, unique = true)
     private String codeGroup;
 
-    @Column(length = 50)
+    @Column(name = "code_group_desc", length = 50)
     private String codeGroupDesc;
 
 }
