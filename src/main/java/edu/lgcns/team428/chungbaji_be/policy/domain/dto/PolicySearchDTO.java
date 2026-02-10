@@ -16,7 +16,6 @@ public class PolicySearchDTO {
     private Integer age;            // 필수: 연령 
     private Integer jobCode;        // 필수: 취업상태 ID (우리 DB의 INT PK) 
     private Integer educationCode;  // 필수: 학력상태 ID (우리 DB의 INT PK) 
-    private String gender;          // 필수: 성별 
 
     private Integer majorCode;      // 선택: 전공 ID 
     private Integer incomeCode;     // 선택: 소득 ID 
