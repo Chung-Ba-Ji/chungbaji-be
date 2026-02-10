@@ -30,6 +30,12 @@ public class PolicyEntity {
     @Column(name = "support_content", columnDefinition = "TEXT")
     private String supportContent;
 
+    @Column(name = "plcy_kywd_nm", columnDefinition = "TEXT")
+    private String keyword;
+
+    @Column(name = "sbiz_cd")
+    private String sbizCd;
+
     @Column(name = "category_main", nullable = false)
     private Integer categoryMain; // 대분류 (code 테이블 참조 예정)
 
