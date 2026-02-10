@@ -3,17 +3,22 @@ package edu.lgcns.team428.chungbaji_be.member.service;
 import java.security.SecureRandom;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Optional;
 
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import edu.lgcns.team428.chungbaji_be.code.domain.entity.CodeEntity;
+import edu.lgcns.team428.chungbaji_be.code.repository.CodeRepository;
 import edu.lgcns.team428.chungbaji_be.common.service.RefreshTokenService;
 import edu.lgcns.team428.chungbaji_be.common.util.JwtProvider;
 import edu.lgcns.team428.chungbaji_be.member.dao.MemberRepository;
 import edu.lgcns.team428.chungbaji_be.member.domain.dto.MemberRequestDTO;
 import edu.lgcns.team428.chungbaji_be.member.domain.dto.MemberResponseDTO;
 import edu.lgcns.team428.chungbaji_be.member.domain.entity.MemberEntity;
+import edu.lgcns.team428.chungbaji_be.region.domain.entity.RegionEntity;
+import edu.lgcns.team428.chungbaji_be.region.repository.RegionRepository;
 import lombok.RequiredArgsConstructor;
 
 @Service
@@ -21,6 +26,9 @@ import lombok.RequiredArgsConstructor;
 public class MemberService {
 
     private final MemberRepository memberRepository;
+    private final RegionRepository regionRepository;
+    private final CodeRepository codeRepository;
+
     private final JwtProvider jwtProvider;
     private final RefreshTokenService refreshTokenService;
 
@@ -31,39 +39,121 @@ public class MemberService {
     public MemberResponseDTO signUp(MemberRequestDTO request) {
         System.out.println("member service signUp call");
 
-        // 이메일 중복이 되면 안됨 !!
-        if (memberRepository.existsByEmail(request.getEmail())) {
-            throw new RuntimeException("already exist");
-        }
+        // 문자열 → 엔티티(코드) 변환
+        RegionEntity region = findRegionByName(request.getRegion());
+
+        CodeEntity education = findCodeByDesc("EDUCATION", request.getEducation());
+        CodeEntity job = findCodeByDesc("JOB", request.getJob());
+        CodeEntity major = findCodeByDesc("MAJOR", request.getMajor());
+        CodeEntity income = findCodeByDesc("INCOME", request.getIncome());
+        CodeEntity special = findCodeByDesc("SPECIAL", request.getSpecial());
 
         // 비밀번호 해싱
         String encodedPassword = passwordEncoder.encode(request.getPassword());
 
-        MemberEntity entity = memberRepository.findByEmail(request.getEmail())
-                .map(existing -> {
-                    // 이메일이 있는데 status=ACTIVE → 중복가입 에러
-                    if (existing.getStatus() == MemberEntity.MemberStatus.ACTIVE) {
-                        throw new RuntimeException("already exist");
-                    }
+        // 이메일 기준 회원 존재 여부 확인
+        Optional<MemberEntity> optional = memberRepository.findByEmail(request.getEmail());
 
-                    // 2) 이메일이 있는데 status=INACTIVE → 재활성화(상태 ACTIVE + 정보 갱신)
-                    existing.reactivate(request, encodedPassword);
-                    return existing;
-                })
-                .orElseGet(() -> memberRepository.save(MemberEntity.from(request, encodedPassword)));
+        // DB에 존재하지 않는 회원인 경우 save
+        if (optional.isEmpty()) {
+            MemberEntity member = MemberEntity.builder()
+                    .email(request.getEmail())
+                    .password(encodedPassword)
+                    .nickname(request.getNickname())
+                    .phoneNum(request.getPhone_num())
+                    .gender(request.getGender())
+                    .birthDate(request.getBirth_date())
+                    .region(region)
+                    .education(education)
+                    .job(job)
+                    .major(major)
+                    .income(income)
+                    .special(special)
+                    .status(MemberEntity.MemberStatus.ACTIVE)
+                    .build();
 
-        return MemberResponseDTO.fromEntity(entity);
+            MemberEntity saved = memberRepository.save(member);
+            return MemberResponseDTO.fromEntity(saved);
+        }
+
+        // 회원 정보가 존재하는 경우
+        MemberEntity existing = optional.get();
+
+        // 탈퇴 회원(WITHDRAWN)은 재가입 불가
+        if (existing.getStatus() == MemberEntity.MemberStatus.WITHDRAWN) {
+            throw new IllegalStateException("탈퇴한 회원은 재가입할 수 없습니다.");
+        }
+
+        // 비활성 회원은 재활성화(INACTIVE -> ACTIVE)
+        if (existing.getStatus() == MemberEntity.MemberStatus.INACTIVE) {
+            existing.reactivate(
+                    encodedPassword,
+                    request.getNickname(),
+                    request.getPhone_num(),
+                    request.getGender(),
+                    request.getBirth_date(),
+                    region,
+                    education,
+                    job,
+                    major,
+                    income,
+                    special);
+            return MemberResponseDTO.fromEntity(existing);
+        }
+
+        // ACTIVE 인데 또 가입 시도
+        throw new IllegalStateException("이미 가입된 회원입니다.");
     }
 
-    // 회원정보 수정 - code/region 엔티티 완성 후 수정 필요
+    // 회원정보 수정
     @Transactional
     public MemberResponseDTO update(String email, MemberRequestDTO request) {
         System.out.println("member service update call");
 
         MemberEntity entity = memberRepository.findByEmail(email)
-                .orElseThrow(() -> new RuntimeException("cannot find"));
+                .orElseThrow(() -> new RuntimeException("member not found"));
 
-        return null;
+        // 문자열 → RegionEntity
+        RegionEntity region = findRegionOrNull(request.getRegion());
+
+        // 문자열 → CodeEntity (codeDesc 기준)
+        CodeEntity education = findCodeOrNull("EDUCATION", request.getEducation());
+        CodeEntity job = findCodeOrNull("JOB", request.getJob());
+        CodeEntity major = findCodeOrNull("MAJOR", request.getMajor());
+        CodeEntity income = findCodeOrNull("INCOME", request.getIncome());
+        CodeEntity special = findCodeOrNull("SPECIAL", request.getSpecial());
+
+        // 엔티티 값 갱신 (자동 UPDATE - JPA 영속성)
+        entity.updateProfile(
+                request.getNickname(),
+                request.getPhone_num(),
+                request.getGender(),
+                request.getBirth_date(),
+                region,
+                education,
+                job,
+                major,
+                income,
+                special);
+
+        return MemberResponseDTO.fromEntity(entity);
+    }
+
+    private RegionEntity findRegionOrNull(String regionName) {
+        if (regionName == null || regionName.isBlank())
+            return null;
+
+        return regionRepository.findByRegionName(regionName)
+                .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 지역입니다: " + regionName));
+    }
+
+    private CodeEntity findCodeOrNull(String group, String desc) {
+        if (desc == null || desc.isBlank())
+            return null;
+
+        return codeRepository.findByCodeGroup_CodeGroupAndCodeDesc(group, desc)
+                .orElseThrow(() -> new IllegalArgumentException(
+                        "존재하지 않는 코드입니다. group=" + group + ", desc=" + desc));
     }
 
     // 비번 찾기: 인증 성공 시 임시 비밀번호 발급 후 해싱 저장
@@ -72,7 +162,7 @@ public class MemberService {
         System.err.println("member service searchPwd");
 
         MemberEntity entity = memberRepository.findByEmailAndPhoneNum(email, phone_num)
-                .orElseThrow(() -> new RuntimeException("cannot find"));
+                .orElseThrow(() -> new RuntimeException("member not found"));
 
         // 임시 비번 발급
         String tempPassword = generateTempPassword(12);
@@ -98,6 +188,8 @@ public class MemberService {
         if (entity.getStatus() == MemberEntity.MemberStatus.WITHDRAWN) {
             return;
         }
+
+        // 회원의 상태 정보 WITHDRAWN으로 변경 
         entity.withdraw(); // JPA의 영속성
     }
 
@@ -152,6 +244,25 @@ public class MemberService {
             sb.append(CHARSET.charAt(RANDOM.nextInt(CHARSET.length())));
         }
         return sb.toString();
+    }
+
+    // region 문자열 -> 코드(int)
+    private RegionEntity findRegionByName(String regionName) {
+        if (regionName == null || regionName.isBlank())
+            return null;
+
+        return regionRepository.findByRegionName(regionName)
+                .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 지역입니다: " + regionName));
+    }
+
+    // code 문자열 -> 코드(int)
+    private CodeEntity findCodeByDesc(String group, String desc) {
+        if (desc == null || desc.isBlank())
+            return null;
+
+        return codeRepository.findByCodeGroup_CodeGroupAndCodeDesc(group, desc)
+                .orElseThrow(() -> new IllegalArgumentException(
+                        "존재하지 않는 코드입니다. group=" + group + ", desc=" + desc));
     }
 
 }

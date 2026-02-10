@@ -16,18 +16,19 @@ public class RegionEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "region_id")
     private Integer regionId;
 
-    @Column(length = 5, nullable = false, unique = true)
+    @Column(name = "region_code", length = 5, nullable = false, unique = true)
     private String regionCode;
 
-    @Column(length = 20, nullable = false)
+    @Column(name = "region_name", length = 20, nullable = false)
     private String regionName;
 
     @Column(nullable = false)
     private Integer level;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(referencedColumnName = "regionCode")
+    @JoinColumn(name = "parent_region_code", referencedColumnName = "region_code")
     private RegionEntity parentRegionCode;
 }
