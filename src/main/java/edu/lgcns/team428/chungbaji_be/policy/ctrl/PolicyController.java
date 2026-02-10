@@ -52,8 +52,11 @@ public class PolicyController {
 
     // 맞춤형 정책 추천 (로그인한 유저 정보를 SearchDTO 형태로 넘겨받음)
     @GetMapping("/recommend")
-    public ResponseEntity<List<PolicyResponseDTO>> getRecommend(PolicySearchDTO searchDTO) {
-        return ResponseEntity.ok(policyService.getRecommendPolicies(searchDTO));
+    public ResponseEntity<List<PolicyResponseDTO>> getRecommend(
+            @RequestParam String email // 또는 SecurityContextHolder에서 추출
+    ) {
+        // 서비스에서 수정한 대로 email을 넘겨주면, 
+        // 서비스가 알아서 Member를 찾고 프로필을 분석해 추천 리스트를 줌
+        return ResponseEntity.ok(policyService.getRecommendPolicies(email));
     }
 }
-

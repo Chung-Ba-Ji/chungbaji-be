@@ -1,5 +1,7 @@
 package edu.lgcns.team428.chungbaji_be.policy.service;
 
+import edu.lgcns.team428.chungbaji_be.member.dao.MemberRepository;
+import edu.lgcns.team428.chungbaji_be.member.domain.entity.MemberEntity;
 import edu.lgcns.team428.chungbaji_be.policy.dao.PolicyRepository;
 import edu.lgcns.team428.chungbaji_be.policy.domain.dto.*;
 import edu.lgcns.team428.chungbaji_be.policy.domain.entity.PolicyEntity;
@@ -18,6 +20,7 @@ import java.time.format.DateTimeFormatter;
 import java.time.temporal.ChronoUnit;
 import java.util.List;
 import java.util.Map;
+import java.time.Period;
 
 @Slf4j
 @Service
@@ -25,6 +28,7 @@ import java.util.Map;
 public class PolicyService {
 
     private final PolicyRepository policyRepository;
+    private final MemberRepository memberRepository;
     private final RestTemplate restTemplate = new RestTemplate();
 
     @Value("${YOUTH_POLICY_API_URL}")
@@ -194,9 +198,29 @@ public class PolicyService {
 
     // 맞춤형 추천 (로그인 유저의 정보를 DTO로 받아서 필터링 검색 로직 재활용!)
     @Transactional(readOnly = true)
-    public List<PolicyResponseDTO> getRecommendPolicies(PolicySearchDTO userProfile) {
-        // 기존에 만드신 searchPolicies와 같은 로직을 타되, 
-        // 유저가 가입할 때 넣은 나이, 지역 등으로 호출하면 그게 바로 추천입니다!
-        return searchPolicies(userProfile);
+    public List<PolicyResponseDTO> getRecommendPolicies(String email) {
+        // 1. 유저 정보 가져오기 (MemberRepository 주입 필요)
+        MemberEntity member = memberRepository.findByEmail(email)                .orElseThrow(() -> new RuntimeException("유저를 찾을 수 없습니다."));
+
+        // 2. 유저 정보를 PolicySearchDTO로 변환
+        // 각 엔티티(Region, Code)에서 실제 DB 검색에 필요한 ID/코드를 추출합니다.
+        PolicySearchDTO searchDTO = PolicySearchDTO.builder()
+                .regionCode(member.getRegion() != null ? member.getRegion().getRegionCode() : null)
+                .age(calculateAge(member.getBirthDate())) 
+                .jobCode(member.getJob() != null ? member.getJob().getCodeId() : 0)
+                .educationCode(member.getEducation() != null ? member.getEducation().getCodeId() : 0)
+                .majorCode(member.getMajor() != null ? member.getMajor().getCodeId() : 0)
+                .incomeCode(member.getIncome() != null ? member.getIncome().getCodeId() : 0)
+                .specialCode(member.getSpecial() != null ? member.getSpecial().getCodeId() : 0)
+                .build();
+
+        // 3. 기존에 만든 검색 로직 재활용!
+        return searchPolicies(searchDTO);
+    }
+
+    // 헬퍼 메소드: 생년월일로 만 나이 계산
+    private Integer calculateAge(LocalDate birthDate) {
+        if (birthDate == null) return 0;
+        return Period.between(birthDate, LocalDate.now()).getYears();
     }
 }
