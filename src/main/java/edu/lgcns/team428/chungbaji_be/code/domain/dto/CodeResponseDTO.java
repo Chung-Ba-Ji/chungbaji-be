@@ -1,6 +1,6 @@
 package edu.lgcns.team428.chungbaji_be.code.domain.dto;
 
-import edu.lgcns.team428.chungbaji_be.code.domain.entity.Code;
+import edu.lgcns.team428.chungbaji_be.code.domain.entity.CodeEntity;
 import lombok.*;
 
 @Builder
@@ -14,7 +14,7 @@ public class CodeResponseDTO {
     private String code;
     private String codeDesc;
 
-    public static CodeResponseDTO fromEntity(Code entity) {
+    public static CodeResponseDTO fromEntity(CodeEntity entity) {
         return CodeResponseDTO.builder()
                 .codeGroup(entity.getCodeGroup().getCodeGroup())
                 .code(entity.getCode())

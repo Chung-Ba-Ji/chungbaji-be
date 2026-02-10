@@ -12,7 +12,7 @@ import lombok.NoArgsConstructor;
 @Getter
 @NoArgsConstructor
 @AllArgsConstructor
-public class CodeGroup {
+public class CodeGroupEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
