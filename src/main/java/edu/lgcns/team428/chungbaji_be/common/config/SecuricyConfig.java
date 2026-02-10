@@ -69,9 +69,9 @@ public class SecuricyConfig {
                 
                 // 인증 없이 접근 가능한 회원 관련 엔드포인트
                 .requestMatchers(
-                    "/members/signUp",
-                    "/members/login",
-                    "/members/searchPwd"
+                    "/api/members/signUp",
+                    "/api/members/login",
+                    "/api/members/searchPwd"
                 ).permitAll()
                                    
                 //인증 없이 접근 가능한 정책 관련                    
@@ -81,10 +81,10 @@ public class SecuricyConfig {
                 
                 // 인증이 반드시 필요한 엔드포인트
                 .requestMatchers(
-                    "/members/logout",
-                    "/members/update/**",
-                    "/members/delete/**",
-                    "/bookmarks/**"
+                    "api/members/logout",
+                    "/api/members/update/**",
+                    "/api/members/delete/**",
+                    "/api/bookmarks/**"
                 ).authenticated()
                 
                 // 그 외 모든 요청은 인증 필요
