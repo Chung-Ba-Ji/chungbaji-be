@@ -11,6 +11,9 @@ import java.util.Optional;
 @Repository
 public interface PolicyRepository extends JpaRepository<PolicyEntity, Integer> {
     
+
+    Optional<PolicyEntity> findByBizId(String bizId);
+    
     //조건필터링
     @Query("SELECT p FROM PolicyEntity p WHERE " +
         "p.regionCode = :regionCode AND " +
@@ -30,5 +33,4 @@ public interface PolicyRepository extends JpaRepository<PolicyEntity, Integer> {
         @Param("specialCode") Integer specialCode
     );
 
-    Optional<PolicyEntity> findByBizId(String bizId);
 }

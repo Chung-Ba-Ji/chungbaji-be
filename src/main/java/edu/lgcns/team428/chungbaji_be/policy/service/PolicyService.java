@@ -35,70 +35,90 @@ public class PolicyService {
 
     @Transactional
     public void syncPolicies() {
-        // 3. dataType=json 추가로 JSON 응답 강제
-        String fullUrl = apiUrl + "?openApiVlak=" + apiKey + "&display=10&pageIndex=1&dataType=json";
+        String fullUrl = apiUrl + 
+                         "?apiKeyNm=" + apiKey + 
+                         "&pageNum=1" + 
+                         "&pageSize=10" + 
+                         "&rtnType=json";
         
+        log.info("요청 URL: {}", fullUrl);
         try {
-            ResponseEntity<Map> responseEntity = restTemplate.exchange(
-                fullUrl,
-                HttpMethod.GET,
-                null,
-                Map.class
-            );
-
+            ResponseEntity<Map> responseEntity = restTemplate.exchange(fullUrl, HttpMethod.GET, null, Map.class);
             Map<String, Object> response = responseEntity.getBody();
+            log.info("API 응답: {}", response);
 
-            // API 응답 코드 확인
-            if (response != null && "200".equals(String.valueOf(response.get("resultCode")))) {
-                Map<String, Object> result = (Map<String, Object>) response.get("result");
-                List<Map<String, String>> apiList = (List<Map<String, String>>) result.get("youthPolicyList");
+            if (response != null) {
+                Object resultCodeObj = response.get("resultCode");
+                String resultCode = String.valueOf(resultCodeObj);
 
-                DateTimeFormatter fmt = DateTimeFormatter.ofPattern("yyyyMMdd");
+                if ("200".equals(resultCode)) {
+                    Map<String, Object> result = (Map<String, Object>) response.get("result");
+                    List<Map<String, Object>> apiList = (List<Map<String, Object>>) result.get("youthPolicyList");
 
-                for (Map<String, String> data : apiList) {
-                    String bizId = data.get("plcyNo");
+                    if (apiList != null) {
+                        log.info("가져온 데이터 개수: {}", apiList.size());
+                        DateTimeFormatter fmt = DateTimeFormatter.ofPattern("yyyyMMdd");
 
-                    // 기존 정책 조회 또는 생성
-                    PolicyEntity policy = policyRepository.findByBizId(bizId)
-                            .orElseGet(() -> PolicyEntity.builder()
-                                    .bizId(bizId)
-                                    .viewCount(0)
-                                    .build());
+                        for (Map<String, Object> data : apiList) {
+                            String bizId = String.valueOf(data.get("plcyNo"));
 
-                    // 데이터 매핑
-                    policy.setTitle(data.get("plcyNm"));
-                    policy.setPolicyDescription(data.get("plcyExplnCn"));
-                    policy.setSupportContent(data.get("plcySprtCn"));
-                    policy.setDetailUrl(data.get("aplyUrlAddr"));
-                    policy.setRegionCode(data.get("pvsnInstGroupCd"));
-                    policy.setMinAge(parseInteger(data.get("sprtTrgtMinAge")));
-                    policy.setMaxAge(parseInteger(data.get("sprtTrgtMaxAge")));
+                            // 1. 기존 정책 조회 또는 새 객체 생성 (중복 저장 방지)
+                            PolicyEntity policy = policyRepository.findByBizId(bizId)
+                                    .orElseGet(() -> PolicyEntity.builder()
+                                            .bizId(bizId)
+                                            .viewCount(0)
+                                            .build());
 
-                    // 날짜 파싱
-                    String aplyYmd = data.get("aplyYmd");
-                    if (aplyYmd != null && aplyYmd.contains(" ~ ")) {
-                        try {
-                            String[] dates = aplyYmd.split(" ~ ");
-                            policy.setApplyStartDate(LocalDate.parse(dates[0].trim(), fmt));
-                            policy.setApplyEndDate(LocalDate.parse(dates[1].trim(), fmt));
-                        } catch (Exception e) {
-                            log.warn("날짜 파싱 실패: {}, bizId: {}", aplyYmd, bizId);
-                            policy.setApplyStartDate(null);
-                            policy.setApplyEndDate(null);
+                            // 2. 데이터 매핑 (API 응답 필드와 Entity 필드 연결)
+                            policy.setTitle(String.valueOf(data.get("plcyNm")));
+                            policy.setPolicyDescription(String.valueOf(data.get("plcyExplnCn")));
+                            policy.setSupportContent(String.valueOf(data.get("plcySprtCn")));
+                            
+                            // policy.setCategoryMain(0);
+                            // policy.setCategorySub(0);
+                            // policy.setRegionCode(String.valueOf(data.get("zipCd")));
+                            
+                            // [임시 데이터 주입] -----------------------------------------
+                            // category_main: lclsfNm 그룹의 '1'(일자리) 코드
+                            policy.setCategoryMain(1); 
+                            
+                            // category_sub: mclsfNm 그룹의 '1'(취업) 코드
+                            policy.setCategorySub(1); 
+                            
+                            // region_code: 01_insert_data.sql에 있는 '11000'(서울특별시)
+                            policy.setRegionCode("11000"); 
+                            // ---------------------------------------------------------
+                                                    
+                            
+                            policy.setDetailUrl(String.valueOf(data.get("aplyUrlAddr")));
+                            policy.setMinAge(parseInteger(String.valueOf(data.get("sprtTrgtMinAge"))));
+                            policy.setMaxAge(parseInteger(String.valueOf(data.get("sprtTrgtMaxAge"))));
+
+                            // 3. 날짜 처리 (aplyYmd 필드 파싱)
+                            String aplyYmd = String.valueOf(data.get("aplyYmd"));
+                            if (aplyYmd != null && aplyYmd.contains(" ~ ")) {
+                                try {
+                                    String[] dates = aplyYmd.split(" ~ ");
+                                    policy.setApplyStartDate(LocalDate.parse(dates[0].trim(), fmt));
+                                    policy.setApplyEndDate(LocalDate.parse(dates[1].trim(), fmt));
+                                } catch (Exception e) {
+                                    log.warn("날짜 파싱 실패: {}, bizId: {}", aplyYmd, bizId);
+                                }
+                            }
+
+                            // 4. 최종 저장
+                            policyRepository.save(policy);
+                            log.info("정책 저장 완료: {}", policy.getTitle());
                         }
                     }
-
-                    policyRepository.save(policy);
-                    log.info("정책 저장 완료: {}", policy.getTitle());
+                } else {
+                    log.error("API 응답 실패 코드: {}", resultCode);
                 }
-            } else {
-                log.error("API 응답 실패: {}", response != null ? response.get("resultMessage") : "응답 없음");
             }
         } catch (Exception e) {
             log.error("동기화 중 에러 발생!", e);
         }
     }
-
 
     @Transactional(readOnly = true)
     public List<PolicyResponseDTO> searchPolicies(PolicySearchDTO search) {
@@ -141,21 +161,15 @@ public class PolicyService {
 
 
     // 상세 조회
-    @Transactional(readOnly = true)
-    public PolicyResponseDTO getPolicyDetail(Integer id) {
-        PolicyEntity entity = policyRepository.findById(id)
-                .orElseThrow(() -> new IllegalArgumentException("해당 정책이 없습니다. id=" + id));
-        
-        // 이전에 만든 convertToResponseDTO 재사용 (단, 상세내용이 포함되도록 DTO 수정 필요할 수 있음)
-        return convertToResponseDTO(entity);
-    }
-
-    // 조회수 증가
     @Transactional
-    public void increaseViewCount(Integer id) {
-        PolicyEntity entity = policyRepository.findById(id)
-                .orElseThrow(() -> new IllegalArgumentException("해당 정책이 없습니다. id=" + id));
-        entity.setViewCount(entity.getViewCount() + 1);
-        // @Transactional이 있어서 자동으로 dirty checking되어 저장됨
-    }
+    public PolicyResponseDTO getPolicyDetailAndIncreaseViewCount(Integer id) {
+    PolicyEntity entity = policyRepository.findById(id)
+            .orElseThrow(() -> new IllegalArgumentException("해당 정책이 없습니다. id=" + id));
+    
+    // 조회수 증가
+    entity.setViewCount(entity.getViewCount() + 1);
+    
+    // DTO 변환 후 반환
+    return convertToResponseDTO(entity);
+}
 }
