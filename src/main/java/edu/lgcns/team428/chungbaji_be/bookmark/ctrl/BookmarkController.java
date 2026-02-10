@@ -29,11 +29,11 @@ public class BookmarkController {
     public ResponseEntity<BookmarkResponseDTO> register(@RequestBody BookmarkRequestDTO request) {
         System.out.println("bookmark controller post call");
 
-        // 인증/인가 
+        // 인증/인가
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
         String email = auth.getName();
 
-        BookmarkResponseDTO dto = bookmarkService.register(email,request.getPolicyId());
+        BookmarkResponseDTO dto = bookmarkService.register(email, request.getPolicyId());
 
         return ResponseEntity.status(HttpStatus.OK).body(dto);
     }
@@ -46,17 +46,21 @@ public class BookmarkController {
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
         String email = auth.getName();
 
-        bookmarkService.delete(email,request.getPolicyId());
+        bookmarkService.delete(email, request.getPolicyId());
         return ResponseEntity.status(HttpStatus.NO_CONTENT).body(null);
 
     }
 
     // 북마크한 정책 리스트업
     @GetMapping("/list")
-    public ResponseEntity<List<BookmarkResponseDTO>> list(BookmarkRequestDTO request) {
+    public ResponseEntity<List<BookmarkResponseDTO>> list(@RequestBody BookmarkRequestDTO request) {
         System.out.println("bookmark controller list call");
 
-        List<BookmarkResponseDTO> list = bookmarkService.listByMember(request.getMemberId());
+        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+        String email = auth.getName();
+
+
+        List<BookmarkResponseDTO> list = bookmarkService.listByMember((email));
 
         return ResponseEntity.status(HttpStatus.ACCEPTED).body(list);
     }

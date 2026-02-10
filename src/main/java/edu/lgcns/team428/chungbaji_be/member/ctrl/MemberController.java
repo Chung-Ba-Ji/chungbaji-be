@@ -17,6 +17,8 @@ import java.util.Map;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.http.HttpHeaders;
@@ -73,13 +75,14 @@ public class MemberController {
     }
 
     // 회원정보 수정
-    @PutMapping("/update/{id}")
-    public ResponseEntity<MemberResponseDTO> update(
-            @PathVariable Integer id,
-            @RequestBody MemberRequestDTO request) {
+    @PutMapping("/update")
+    public ResponseEntity<MemberResponseDTO> update(@RequestBody MemberRequestDTO request) {
         System.out.println("member controller update call");
 
-        MemberResponseDTO updated = memberService.update(id, request);
+        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+        String email = auth.getName();
+
+        MemberResponseDTO updated = memberService.update(email, request);
 
         return ResponseEntity.status(HttpStatus.OK).body(updated);
     }
@@ -95,10 +98,14 @@ public class MemberController {
     }
 
     // 회원 탈퇴
-    @DeleteMapping("/delete/{id}")
-    public ResponseEntity<Void> delete(@PathVariable Integer id) {
+    @DeleteMapping("/delete")
+    public ResponseEntity<Void> delete() {
         System.out.println("member controller delete call");
-        memberService.delete(id);
+
+        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+        String email = auth.getName();
+
+        memberService.deleteByEmail(email);
         return ResponseEntity.status(HttpStatus.NO_CONTENT).body(null);
     }
 
