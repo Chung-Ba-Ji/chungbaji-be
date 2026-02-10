@@ -1,20 +1,19 @@
 package edu.lgcns.team428.chungbaji_be.community.domain.entity;
 
+import edu.lgcns.team428.chungbaji_be.member.domain.entity.MemberEntity;
+import edu.lgcns.team428.chungbaji_be.policy.domain.entity.PolicyEntity;
 import jakarta.persistence.*;
 import lombok.*;
-import org.hibernate.annotations.ColumnDefault;
 import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.annotation.LastModifiedDate;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
-
-import edu.lgcns.team428.chungbaji_be.member.domain.entity.MemberEntity;
-import edu.lgcns.team428.chungbaji_be.policy.domain.entity.PolicyEntity;
 
 import java.time.LocalDateTime;
 
 
 @Entity
 @Getter
+@Setter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @AllArgsConstructor
 @Builder
@@ -34,9 +33,9 @@ public class PostEntity {
     @JoinColumn(name = "policy_id", nullable = false)
     private PolicyEntity policy;
 
-    // @ManyToOne(fetch = FetchType.LAZY)
-    // @JoinColumn(name = "category_code")
-    // private CodeEntity categoryCode;
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "code_id", nullable = false)
+    private CodeEntity code;
 
     @Column(nullable = false)
     private String title;

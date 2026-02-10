@@ -1,5 +1,6 @@
 package edu.lgcns.team428.chungbaji_be.community.domain.entity;
 
+import edu.lgcns.team428.chungbaji_be.member.domain.entity.MemberEntity;
 import jakarta.persistence.*;
 import lombok.*;
 import org.springframework.data.annotation.CreatedDate;
