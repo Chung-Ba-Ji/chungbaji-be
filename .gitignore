@@ -39,4 +39,7 @@ out/
 
 # MariaDB 데이터 폴더 제외
 mariadb_data/
+<<<<<<< HEAD
+=======
 
+>>>>>>> 1303e7af12b265269e27688cff23f43d5c2d69b0

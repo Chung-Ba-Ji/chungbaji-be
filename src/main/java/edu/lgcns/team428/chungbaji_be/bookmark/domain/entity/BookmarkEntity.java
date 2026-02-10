@@ -3,6 +3,7 @@ package edu.lgcns.team428.chungbaji_be.bookmark.domain.entity;
 import java.time.LocalDateTime;
 
 import edu.lgcns.team428.chungbaji_be.member.domain.entity.MemberEntity;
+import edu.lgcns.team428.chungbaji_be.policy.domain.entity.PolicyEntity;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
@@ -20,10 +21,9 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.ToString;
 
-// PolicyEntity 생성되면 주석 해제
 
 @Entity
-@Table(name = "BOOKMARK")
+@Table(name = "bookmark")
 @Builder
 @Getter
 @ToString
@@ -38,9 +38,9 @@ public class BookmarkEntity {
     @JoinColumn(name = "member_id", referencedColumnName = "member_id", nullable = false)
     private MemberEntity member;
 
-    // @ManyToOne(fetch = FetchType.LAZY, optional = false)
-    // @JoinColumn(name = "policy_id", referencedColumnName = "policy_id", nullable = false)
-    // private PolicyEntity policy;
+    @ManyToOne(fetch = FetchType.LAZY, optional = false)
+    @JoinColumn(name = "policy_id", referencedColumnName = "policy_id", nullable = false)
+    private PolicyEntity policy;
 
     @Enumerated(EnumType.STRING)
     @Column(name = "status", nullable = false, length = 20)

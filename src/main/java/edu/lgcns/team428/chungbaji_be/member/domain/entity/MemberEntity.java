@@ -3,6 +3,7 @@ package edu.lgcns.team428.chungbaji_be.member.domain.entity;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 
+import edu.lgcns.team428.chungbaji_be.member.domain.dto.MemberRequestDTO;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
@@ -20,10 +21,10 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.ToString;
 
-// 참조 엔티티 생성되면 주석 해제할 것
+// 참조 엔티티(CodeEntity, RegionEntity) 생성되면 주석 해제할 것
 
 @Entity
-@Table(name = "MEMBER")
+@Table(name = "member")
 @Builder
 @Getter
 @ToString
@@ -89,5 +90,16 @@ public class MemberEntity {
 
     public enum MemberStatus {
         ACTIVE, INACTIVE, WITHDRAWN
+    }
+
+    // 비번 해싱 저장 
+    public static MemberEntity from(MemberRequestDTO dto, String password){
+        return MemberEntity.builder().email(dto.getEmail()).password(password)
+            .nickname(dto.getNickname()).phoneNum(dto.getPhone_num())
+            .gender(dto.getGender()).birthDate(dto.getBirth_date()).build();
+    }
+
+    public void updatePwd(String encodedPassword){
+        password = encodedPassword;
     }
 }

@@ -57,11 +57,11 @@ CREATE TABLE member (
     birth_date      DATE                                            COMMENT '생년월일',
     region_code     VARCHAR(5)                                      COMMENT '지역',
     education_code	INT                                             COMMENT '학력 요건 코드',
-    job_code	      INT                                             COMMENT '취업 요건 코드',
+    job_code	    INT                                             COMMENT '취업 요건 코드',
     major_code	    INT                                             COMMENT '전공 요건 코드',
     income_code	    INT                                             COMMENT '소득 요건 코드',
-    special_code	  INT                                             COMMENT '특화 요건 코드',
-    status          VARCHAR(20)     NOT NULL DEFAULT 'ACTIVE'      COMMENT '계정 상태',
+    special_code	INT                                             COMMENT '특화 요건 코드',
+    status          VARCHAR(20)     NOT NULL DEFAULT 'ACTIVE'       COMMENT '계정 상태',
     created_at      TIMESTAMP       NOT NULL DEFAULT CURRENT_TIMESTAMP,
     updated_at      TIMESTAMP       NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
 
@@ -81,26 +81,26 @@ CREATE TABLE member (
 -- 정책테이블
 
 CREATE TABLE policy (
-    policy_id              INT                PRIMARY KEY   AUTO_INCREMENT 	        COMMENT '정책 고유번호',
-    title                  VARCHAR(255) 	    NOT NULL                              COMMENT '정책명 (API: plcyNm)',
-    policy_description     TEXT 	                                                  COMMENT '정책 설명 (API: plcyExplnCn)',
-    support_content        TEXT 							                                      COMMENT '지원 내용 (API: plcySprtCn)',
-    category_main          INT 				 				NOT NULL	                            COMMENT '대분류 (API: lclsfNm)',
-    category_sub           INT 				 			                                        COMMENT '중분류 (API: mclsfNm)',
-    region_code            VARCHAR(5) 				                                      COMMENT '지역 코드 (법정동코드 앞 5자리)',
-    education_code         INT 				 				                                      COMMENT '학력 요건 코드 (API: schoolCd)',
-    job_code               INT 				 				                                      COMMENT '취업 요건 코드 (API: jobCd)',
-    major_code             INT 				 				                                      COMMENT '전공 요건 코드 (API: plcyMajorCd)',
-    income_code            INT 				 				                                      COMMENT '소득 요건 코드 (API: earnCndSeCd)',
-    special_code           INT 				 				                                      COMMENT '특화 요건 코드 (API: sBizCd)',
-    min_age                INT 						                                          COMMENT '최소 연령 (API: sprtTrgtMinAge)',
-    max_age                INT 						                                          COMMENT '최대 연령 (API: sprtTrgtMaxAge)',
-    apply_start_date       DATE 						                                        COMMENT '신청 시작일 (API: aplyYmd 기반 파싱)',
-    apply_end_date         DATE 					                                          COMMENT '신청 종료일 (API: aplyYmd 기반 파싱)',
-    start_date 		         DATE 					                                          COMMENT '사업 시작일 (API: bizPrdBgngYmd)',
-    end_date 		           DATE 					                                          COMMENT '사업 종료일 (API: bizPrdEndYmd)',
-    detail_url 		         VARCHAR(2048) 	    NOT NULL  		                        COMMENT '상세 URL (API: aplyUrlAddr)',
-    view_count 		         INT 	              NOT NULL   DEFAULT 0 		              COMMENT '조회수',
+    policy_id           INT             PRIMARY KEY AUTO_INCREMENT  COMMENT '정책 고유번호',
+    title               VARCHAR(255)    NOT NULL                    COMMENT '정책명 (API: plcyNm)',
+    policy_description  TEXT 	                                    COMMENT '정책 설명 (API: plcyExplnCn)',
+    support_content     TEXT 							            COMMENT '지원 내용 (API: plcySprtCn)',
+    category_main       INT             NOT NULL	                COMMENT '대분류 (API: lclsfNm)',
+    category_sub        INT 				 			            COMMENT '중분류 (API: mclsfNm)',
+    region_code         VARCHAR(5) 				                    COMMENT '지역 코드 (법정동코드 앞 5자리)',
+    education_code      INT 				 				        COMMENT '학력 요건 코드 (API: schoolCd)',
+    job_code            INT 				 				        COMMENT '취업 요건 코드 (API: jobCd)',
+    major_code          INT 				 				        COMMENT '전공 요건 코드 (API: plcyMajorCd)',
+    income_code         INT 	 				                    COMMENT '소득 요건 코드 (API: earnCndSeCd)',
+    special_code        INT 				 				        COMMENT '특화 요건 코드 (API: sBizCd)',
+    min_age             INT 						                COMMENT '최소 연령 (API: sprtTrgtMinAge)',
+    max_age             INT 						                COMMENT '최대 연령 (API: sprtTrgtMaxAge)',
+    apply_start_date    DATE 						                COMMENT '신청 시작일 (API: aplyYmd 기반 파싱)',
+    apply_end_date      DATE 					                    COMMENT '신청 종료일 (API: aplyYmd 기반 파싱)',
+    start_date 		    DATE 					                    COMMENT '사업 시작일 (API: bizPrdBgngYmd)',
+    end_date 		    DATE 					                    COMMENT '사업 종료일 (API: bizPrdEndYmd)',
+    detail_url 		    VARCHAR(2048) 	NOT NULL  		            COMMENT '상세 URL (API: aplyUrlAddr)',
+    view_count 		    INT 	        NOT NULL    DEFAULT 0 		COMMENT '조회수',
 
 
     CONSTRAINT fk_policy_cat_main   FOREIGN KEY (category_main)   REFERENCES code(code_id), -- 대분류
@@ -143,8 +143,8 @@ CREATE TABLE bookmark (
     policy_id    INT            NOT NULL                                                        COMMENT '정책 고유번호',
     member_id    INT            NOT NULL                                                        COMMENT '회원 고유번호',
     status       VARCHAR(20)    NOT NULL DEFAULT 'CREATED'                                      COMMENT '상태',
-    create_at    TIMESTAMP      NOT NULL DEFAULT CURRENT_TIMESTAMP                              COMMENT '작성 일시',
-    update_at    TIMESTAMP      NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP  COMMENT '마지막 수정 일시',
+    created_at   TIMESTAMP      NOT NULL DEFAULT CURRENT_TIMESTAMP                              COMMENT '작성 일시',
+    updated_at   TIMESTAMP      NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP  COMMENT '마지막 수정 일시',
 
     CONSTRAINT uq_bookmark_member_policy UNIQUE (member_id, policy_id),
     CONSTRAINT fk_bookmark_member
@@ -169,7 +169,7 @@ CREATE TABLE post (
     is_anonymous  CHAR(1)       NOT NULL    DEFAULT 'N',
     status        VARCHAR(20)   NOT NULL    DEFAULT 'CREATED',
     created_at    TIMESTAMP     NOT NULL    DEFAULT CURRENT_TIMESTAMP,
-    updated_at    TIMESTAMP,
+    updated_at    TIMESTAMP     NOT NULL    DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
 
     CONSTRAINT chk_post_status
         CHECK (status IN ('CREATED', 'DELETED')),
@@ -208,11 +208,11 @@ CREATE TABLE post (
 CREATE TABLE comment (
     comment_id  INT         PRIMARY KEY AUTO_INCREMENT,
     post_id	    INT         NOT NULL,
-    member_id	  INT         NOT NULL,
+    member_id	INT         NOT NULL,
     content	    TEXT,
-    created_at	TIMESTAMP   NOT NULL    DEFAULT CURRENT_TIMESTAMP,
-    updated_at	TIMESTAMP,
-    status	    VARCHAR(20) NOT NULL    DEFAULT 'CREATED',
+    created_at	TIMESTAMP   NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    updated_at	TIMESTAMP   NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    status	    VARCHAR(20) NOT NULL DEFAULT 'CREATED',
 
     CONSTRAINT ck_comment_status
         CHECK (status IN ('CREATED', 'DELETED')),
@@ -230,3 +230,22 @@ CREATE TABLE comment (
             ON UPDATE CASCADE ON DELETE RESTRICT
 );
 
+
+CREATE TABLE schedule (
+    schedule_id INT         AUTO_INCREMENT PRIMARY KEY                              COMMENT '일정 고유번호',
+    member_id   INT         NOT NULL                                                COMMENT '회원 고유번호 (member.member_id 참조)',
+    policy_id   INT         NOT NULL                                                COMMENT '정책 고유번호 (policy.policy_id 참조)',
+    start_date  DATE                                                                COMMENT '일정 시작일',
+    end_date    DATE                                                                COMMENT '일정 종료일',
+    is_alarm    CHAR(1)     NOT NULL DEFAULT 'N'                                    COMMENT '알림 여부 (Y/N)',
+    status      VARCHAR(20) NOT NULL DEFAULT 'ACTIVE'                               COMMENT '상태 (ACTIVE, DELETED)',
+    created_at  TIMESTAMP   DEFAULT CURRENT_TIMESTAMP                               COMMENT '작성 일시',
+    updated_at  TIMESTAMP   DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP   COMMENT '수정 일시',
+
+    CONSTRAINT ck_schedule_status CHECK (status IN ('ACTIVE', 'DELETED')),
+    CONSTRAINT fk_schedule_member FOREIGN KEY (member_id)  REFERENCES member(member_id) ON DELETE CASCADE,
+    CONSTRAINT fk_schedule_policy FOREIGN KEY (policy_id)  REFERENCES policy(policy_id) ON DELETE CASCADE,
+
+    -- 알림 여부 체크 제약조건
+    CONSTRAINT ck_is_alarm CHECK (is_alarm IN ('Y', 'N'))
+);
