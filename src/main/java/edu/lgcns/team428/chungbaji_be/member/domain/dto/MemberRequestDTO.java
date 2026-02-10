@@ -29,11 +29,14 @@ public class MemberRequestDTO {
     private String income;
     private String special;
 
+
     // 이후에 code(int)로 변환 로직 추가
     public MemberEntity toEntity() {
         return MemberEntity.builder().email(email).password(password)
                 .nickname(nickname).phoneNum(phone_num)
                 .gender(gender).birthDate(birth_date).build();
     }
+
+    
 
 }

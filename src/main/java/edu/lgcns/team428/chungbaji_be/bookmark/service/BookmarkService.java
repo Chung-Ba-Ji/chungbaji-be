@@ -34,6 +34,8 @@ public class BookmarkService {
         PolicyEntity policy = policyRepository.findById(request.getPolicyId())
                 .orElseThrow(() -> new RuntimeException("cannot find"));
 
+        
+
         BookmarkEntity entity = bookmarkRepository.save(request.toEntity(member, policy));
 
         return BookmarkResponseDTO.fromEntity(entity);
