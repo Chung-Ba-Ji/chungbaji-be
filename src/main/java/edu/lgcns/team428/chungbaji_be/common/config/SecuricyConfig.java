@@ -58,7 +58,10 @@ public class SecuricyConfig {
                         "/swagger-ui/**",
                         "/v3/api-docs/**",
                         "/member/signUp",
-                        "/member/login").permitAll() // 토큰 없이 접근 가능한 endPoint
+                        "/member/login",
+                        "/api/policy/**",
+                        "/error"
+                    ).permitAll() // 토큰 없이 접근 가능한 endPoint
                         .requestMatchers("/bookmark/**").authenticated()  
                         .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll() // preflight 처리(모든 prelight 허용)
                         .anyRequest().authenticated()
