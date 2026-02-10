@@ -22,7 +22,8 @@ spring:
 logging:
   level:
     org:
-      springframework: INFO
+      springframework:
+        security: DEBUG 
       hibernate.SQL: DEBUG
       hibernate.type.descriptor.sql.BasicBinder: TRACE
 

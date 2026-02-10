@@ -1,10 +1,14 @@
 package edu.lgcns.team428.chungbaji_be.community.domain.entity;
 
+import edu.lgcns.team428.chungbaji_be.member.domain.entity.MemberEntity;
 import jakarta.persistence.*;
 import lombok.*;
 import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.annotation.LastModifiedDate;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
+
+import edu.lgcns.team428.chungbaji_be.member.domain.entity.MemberEntity;
+
 import java.time.LocalDateTime;
 
 @Entity
@@ -14,7 +18,7 @@ import java.time.LocalDateTime;
 @Builder // 객체 생성을 편리하게 하기 위해 추가
 @Table(name = "comment")
 @EntityListeners(AuditingEntityListener.class)
-public class Comment {
+public class CommentEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -22,11 +26,11 @@ public class Comment {
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "post_id", nullable = false)
-    private Post post;
+    private PostEntity post;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "member_id", nullable = false)
-    private Member member;
+    private MemberEntity member;
 
     @Lob
     @Column(columnDefinition = "TEXT")

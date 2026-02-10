@@ -8,6 +8,7 @@ import java.time.LocalDate;
 @Table(name = "policy")
 @Builder
 @Getter
+@Setter
 @NoArgsConstructor
 @AllArgsConstructor
 public class PolicyEntity {
@@ -17,6 +18,9 @@ public class PolicyEntity {
     @Column(name = "policy_id")
     private Integer policyId;
 
+    @Column(name = "biz_id", nullable = false, unique = true)
+    private String bizId; // API의 plcyNo 저장용
+
     @Column(nullable = false)
     private String title;
 
@@ -25,6 +29,12 @@ public class PolicyEntity {
 
     @Column(name = "support_content", columnDefinition = "TEXT")
     private String supportContent;
+
+    @Column(name = "plcy_kywd_nm", columnDefinition = "TEXT")
+    private String keyword;
+
+    @Column(name = "sbiz_cd")
+    private String sbizCd;
 
     @Column(name = "category_main", nullable = false)
     private Integer categoryMain; // 대분류 (code 테이블 참조 예정)

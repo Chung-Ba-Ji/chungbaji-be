@@ -36,12 +36,47 @@ public class MemberResponseDTO {
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
 
-    // 추후에 코드를 문자열로 변환하는 로직 추가
+    // 코드를 문자열로 변환해서 반환 
     public static MemberResponseDTO fromEntity(MemberEntity entity) {
-        return MemberResponseDTO.builder().memberId(entity.getMember_id()).email(entity.getEmail())
-                .nickname(entity.getNickname()).phoneNum(entity.getPhoneNum()).gender(entity.getGender())
-                .birthDate(entity.getBirthDate()).status(entity.getStatus()).createdAt(entity.getCreatedAt())
-                .updatedAt(entity.getUpdatedAt()).build();
+
+        return MemberResponseDTO.builder()
+                .memberId(entity.getMemberId())
+                .email(entity.getEmail())
+                .nickname(entity.getNickname())
+                .phoneNum(entity.getPhoneNum())
+                .gender(entity.getGender())
+                .birthDate(entity.getBirthDate())
+
+                // 사람이 이해하는 문자열로 변환
+                .region(
+                        entity.getRegion() != null
+                                ? entity.getRegion().getRegionName()
+                                : null)
+                .education(
+                        entity.getEducation() != null
+                                ? entity.getEducation().getCodeDesc()
+                                : null)
+                .job(
+                        entity.getJob() != null
+                                ? entity.getJob().getCodeDesc()
+                                : null)
+                .major(
+                        entity.getMajor() != null
+                                ? entity.getMajor().getCodeDesc()
+                                : null)
+                .income(
+                        entity.getIncome() != null
+                                ? entity.getIncome().getCodeDesc()
+                                : null)
+                .special(
+                        entity.getSpecial() != null
+                                ? entity.getSpecial().getCodeDesc()
+                                : null)
+
+                .status(entity.getStatus())
+                .createdAt(entity.getCreatedAt())
+                .updatedAt(entity.getUpdatedAt())
+                .build();
     }
 
 }

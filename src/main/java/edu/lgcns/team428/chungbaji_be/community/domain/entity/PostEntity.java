@@ -1,8 +1,10 @@
 package edu.lgcns.team428.chungbaji_be.community.domain.entity;
 
+import edu.lgcns.team428.chungbaji_be.code.domain.entity.CodeEntity;
+import edu.lgcns.team428.chungbaji_be.member.domain.entity.MemberEntity;
+import edu.lgcns.team428.chungbaji_be.policy.domain.entity.PolicyEntity;
 import jakarta.persistence.*;
 import lombok.*;
-import org.hibernate.annotations.ColumnDefault;
 import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.annotation.LastModifiedDate;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
@@ -12,12 +14,13 @@ import java.time.LocalDateTime;
 
 @Entity
 @Getter
+@Setter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @AllArgsConstructor
 @Builder
 @Table(name = "post")
 @EntityListeners(AuditingEntityListener.class) // 생성/수정 시간 자동 기록
-public class Post {
+public class PostEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -25,15 +28,15 @@ public class Post {
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "member_id", nullable = false)
-    private Member member;
+    private MemberEntity member;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "policy_id", nullable = false)
-    private Policy policy;
+    private PolicyEntity policy;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "category_code")
-    private Code categoryCode;
+    @JoinColumn(name = "code_id", nullable = false)
+    private CodeEntity code;
 
     @Column(nullable = false)
     private String title;

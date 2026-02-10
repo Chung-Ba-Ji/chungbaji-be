@@ -15,6 +15,9 @@ public interface BookmarkRepository extends JpaRepository<BookmarkEntity, Intege
     // 북마크 저장/해제
     Optional<BookmarkEntity> findByMemberAndPolicy(MemberEntity member, PolicyEntity policy);
 
+    
+    Optional<BookmarkEntity> findByMemberMemberIdAndPolicyPolicyId(Integer memberId, Integer policyId) ;
+
     // 정책 리스트업
-    Optional<List<BookmarkEntity>> findByMemberAndStatus(MemberEntity member, BookmarkEntity.BookmarkStatus status);
+    List<BookmarkEntity> findAllByMemberAndStatus(MemberEntity member, BookmarkEntity.BookmarkStatus status);
 }

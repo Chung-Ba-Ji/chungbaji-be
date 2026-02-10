@@ -21,7 +21,6 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.ToString;
 
-
 @Entity
 @Table(name = "bookmark")
 @Builder
@@ -32,7 +31,8 @@ import lombok.ToString;
 public class BookmarkEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Integer bookmark_id;
+    @Column(name = "bookmark_id")
+    private Integer bookmarkId;
 
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
     @JoinColumn(name = "member_id", referencedColumnName = "member_id", nullable = false)
@@ -47,14 +47,22 @@ public class BookmarkEntity {
     @Builder.Default
     private BookmarkStatus status = BookmarkStatus.CREATED;
 
-    @Column(nullable = false, updatable = false, insertable = false)
-    private LocalDateTime createAt;
+    @Column(name = "created_at", nullable = false, updatable = false, insertable = false)
+    private LocalDateTime createdAt;
 
-    @Column(nullable = false, insertable = false)
-    private LocalDateTime updateAt;
+    @Column(name = "updated_at", nullable = false, insertable = false)
+    private LocalDateTime updatedAt;
 
     public enum BookmarkStatus {
         CREATED,
         DELETED
+    }
+
+    public void markCreated() {
+        this.status = BookmarkStatus.CREATED;
+    }
+
+    public void markDeleted() {
+        this.status = BookmarkStatus.DELETED;
     }
 }

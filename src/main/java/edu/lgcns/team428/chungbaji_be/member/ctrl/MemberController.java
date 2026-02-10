@@ -17,12 +17,13 @@ import java.util.Map;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.DeleteMapping;
-import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.http.HttpHeaders;
 
 @RestController
-@RequestMapping("/member")
+@RequestMapping("/api/members")
 @RequiredArgsConstructor
 public class MemberController {
     private final MemberService memberService;
@@ -47,7 +48,7 @@ public class MemberController {
         HttpHeaders headers = new HttpHeaders();
         headers.add("Authorization", "Bearer " + map.get("access-token"));
         headers.add("Refresh-token", (String) (map.get("refresh-token")));
-        // 브라우저는 기본적으로 JS코드가 읽을 수 있는 응답헤더를 제한하기 때문에 수동으로 허용해줘야 함
+        // 응답헤더 명시적 허용 
         headers.add("Access-Control-Expose-Headers", "Authorization,Refresh-token");
 
         System.out.println("access token value : " + headers.get("Authorization"));
@@ -73,13 +74,14 @@ public class MemberController {
     }
 
     // 회원정보 수정
-    @PutMapping("/update/{id}")
-    public ResponseEntity<MemberResponseDTO> update(
-            @PathVariable Integer id,
-            @RequestBody MemberRequestDTO request) {
+    @PutMapping("/update")
+    public ResponseEntity<MemberResponseDTO> update(@RequestBody MemberRequestDTO request) {
         System.out.println("member controller update call");
 
-        MemberResponseDTO updated = memberService.update(id, request);
+        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+        String email = auth.getName();
+
+        MemberResponseDTO updated = memberService.update(email, request);
 
         return ResponseEntity.status(HttpStatus.OK).body(updated);
     }
@@ -95,10 +97,14 @@ public class MemberController {
     }
 
     // 회원 탈퇴
-    @DeleteMapping("/delete/{id}")
-    public ResponseEntity<Void> delete(@PathVariable Integer id) {
+    @DeleteMapping("/delete")
+    public ResponseEntity<Void> delete() {
         System.out.println("member controller delete call");
-        memberService.delete(id);
+
+        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+        String email = auth.getName();
+
+        memberService.deleteByEmail(email);
         return ResponseEntity.status(HttpStatus.NO_CONTENT).body(null);
     }
 
