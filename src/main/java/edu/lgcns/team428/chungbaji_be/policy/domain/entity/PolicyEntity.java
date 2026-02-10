@@ -8,6 +8,7 @@ import java.time.LocalDate;
 @Table(name = "policy")
 @Builder
 @Getter
+@Setter
 @NoArgsConstructor
 @AllArgsConstructor
 public class PolicyEntity {
@@ -16,6 +17,9 @@ public class PolicyEntity {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "policy_id")
     private Integer policyId;
+
+    @Column(name = "biz_id", nullable = false, unique = true)
+    private String bizId; // API의 plcyNo 저장용
 
     @Column(nullable = false)
     private String title;
