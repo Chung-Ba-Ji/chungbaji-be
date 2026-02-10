@@ -19,7 +19,7 @@ import lombok.NoArgsConstructor;
 @Getter
 @NoArgsConstructor
 @AllArgsConstructor
-public class Code {
+public class CodeEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -27,7 +27,7 @@ public class Code {
 
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
     @JoinColumn(referencedColumnName = "codeGroup", nullable = false)
-    private CodeGroup codeGroup;
+    private CodeGroupEntity codeGroup;
 
     @Column(length = 50, nullable = false)
     private String code;
