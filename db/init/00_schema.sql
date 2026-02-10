@@ -163,7 +163,6 @@ CREATE TABLE post (
     member_id     INT           NOT NULL,
     policy_id     INT           NOT NULL,
     code_id       INT           NOT NULL,
-    category_code INT,
     title         VARCHAR(255)  NOT NULL,
     content       TEXT,
     is_anonymous  CHAR(1)       NOT NULL    DEFAULT 'N',
@@ -178,7 +177,7 @@ CREATE TABLE post (
     CONSTRAINT ck_is_anonymous
         CHECK (is_anonymous IN ('Y', 'N')),
         
-    CONSTRAINT fk_code_code_id
+    CONSTRAINT fk_post_code
         FOREIGN KEY (code_id)
             REFERENCES code(code_id)
             ON UPDATE CASCADE ON DELETE RESTRICT,
@@ -193,11 +192,6 @@ CREATE TABLE post (
     CONSTRAINT fk_post_member
         FOREIGN KEY (member_id)
             REFERENCES member(member_id)
-            ON UPDATE CASCADE ON DELETE RESTRICT,
-    
-    CONSTRAINT fk_post_code
-        FOREIGN KEY (category_code)
-            REFERENCES code(code_id)
             ON UPDATE CASCADE ON DELETE RESTRICT
 );
 

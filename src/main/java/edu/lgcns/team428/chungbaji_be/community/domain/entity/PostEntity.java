@@ -13,6 +13,7 @@ import java.time.LocalDateTime;
 
 @Entity
 @Getter
+@Setter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @AllArgsConstructor
 @Builder
@@ -33,8 +34,8 @@ public class PostEntity {
     private PolicyEntity policy;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "category_code")
-    private CodeEntity categoryCode;
+    @JoinColumn(name = "code_id", nullable = false)
+    private CodeEntity code;
 
     @Column(nullable = false)
     private String title;
