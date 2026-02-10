@@ -1,5 +1,6 @@
 package edu.lgcns.team428.chungbaji_be.community.domain.entity;
 
+import edu.lgcns.team428.chungbaji_be.code.domain.entity.CodeEntity;
 import edu.lgcns.team428.chungbaji_be.member.domain.entity.MemberEntity;
 import edu.lgcns.team428.chungbaji_be.policy.domain.entity.PolicyEntity;
 import jakarta.persistence.*;
