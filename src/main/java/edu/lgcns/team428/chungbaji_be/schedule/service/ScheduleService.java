@@ -19,19 +19,29 @@ public class ScheduleService {
     
     private final ScheduleRepository scheduleRepository;
 
-    //북마크 일정 매핑 및 생성
     @Transactional
     public void createScheduleFromBookmark(MemberEntity member, PolicyEntity policy) {
+        // 이미 등록된 일정인지 확인 (중복 방지)
+        if (scheduleRepository.existsByMemberAndPolicy(member, policy)) {
+            return;
+        }
+
         ScheduleEntity schedule = ScheduleEntity.builder()
                 .member(member)
                 .policy(policy)
-                .startDate(policy.getApplyStartDate()) // 정책의 신청 시작일
-                .endDate(policy.getApplyEndDate())     // 정책의 신청 종료일
-                .isAlarm("N") // 기본값
+                .startDate(policy.getApplyStartDate())
+                .endDate(policy.getApplyEndDate())
+                .isAlarm("N")
                 .status("UPCOMING")
-                .createdAt(LocalDateTime.now())
+                // createdAt은 Entity의 @PrePersist에서 처리되므로 builder에서 빼도 됩니다.
                 .build();
         scheduleRepository.save(schedule);
+    }
+
+    // 북마크 해제 시 일정 삭제
+    @Transactional
+    public void deleteScheduleFromBookmark(MemberEntity member, PolicyEntity policy) {
+        scheduleRepository.deleteByMemberAndPolicy(member, policy);
     }
 
     @Transactional(readOnly = true)
@@ -39,25 +49,14 @@ public class ScheduleService {
         List<ScheduleEntity> entities = scheduleRepository.findAllByMember_Email(email);
 
         return entities.stream()
-                .map(entity -> ScheduleResponseDTO.builder()
-                        .scheduleId(entity.getScheduleId())
-                        .policyId(entity.getPolicy().getPolicyId())
-                        .policyTitle(entity.getPolicy().getTitle()) // 정책 제목 포함
-                        .startDate(entity.getStartDate())
-                        .endDate(entity.getEndDate())
-                        .isAlarm(entity.getIsAlarm())
-                        .status(entity.getStatus())
-                        .createdAt(entity.getCreatedAt())
-                        .build())
+                .map(this::convertToResponseDTO)
                 .toList();
     }
 
-    //일정 상세 조회
-    @Transactional(readOnly = true)
-    public ScheduleResponseDTO getScheduleDetail(Integer id) {
-        ScheduleEntity entity = scheduleRepository.findById(id)
-                .orElseThrow(() -> new IllegalArgumentException("해당 일정이 없습니다. id=" + id));
-
+    // DTO 변환 로직 공통화 및 D-DAY 계산
+    private ScheduleResponseDTO convertToResponseDTO(ScheduleEntity entity) {
+        long dDay = java.time.temporal.ChronoUnit.DAYS.between(java.time.LocalDate.now(), entity.getEndDate());
+        
         return ScheduleResponseDTO.builder()
                 .scheduleId(entity.getScheduleId())
                 .policyId(entity.getPolicy().getPolicyId())
@@ -67,7 +66,16 @@ public class ScheduleService {
                 .isAlarm(entity.getIsAlarm())
                 .status(entity.getStatus())
                 .createdAt(entity.getCreatedAt())
+                .dDay(dDay) // DTO에 dDay 필드 추가 필요!
                 .build();
     }
 
+    //상세 조회
+    @Transactional(readOnly = true)
+    public ScheduleResponseDTO getScheduleDetail(Integer id) {
+        ScheduleEntity entity = scheduleRepository.findById(id)
+                .orElseThrow(() -> new IllegalArgumentException("해당 일정이 없습니다. id=" + id));
+
+        return convertToResponseDTO(entity); // 공통 변환 로직 사용
+    }
 }

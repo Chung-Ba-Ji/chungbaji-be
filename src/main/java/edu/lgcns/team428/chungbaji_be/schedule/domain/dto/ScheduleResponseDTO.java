@@ -18,4 +18,5 @@ public class ScheduleResponseDTO {
     private String isAlarm;
     private String status;
     private LocalDateTime createdAt;
+    private Long dDay;
 }
