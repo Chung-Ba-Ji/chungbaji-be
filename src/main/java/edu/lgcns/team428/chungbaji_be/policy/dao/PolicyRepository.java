@@ -43,7 +43,7 @@ public interface PolicyRepository extends JpaRepository<PolicyEntity, Integer> {
     List<PolicyEntity> findTop3ByApplyEndDateAfterOrderByApplyEndDateAsc(@Param("today") LocalDate today);
 
     // 정책 키워드 중복 제거해서 가져오기 (해시태그용)
-    @Query(value = "SELECT DISTINCT plcy_kywd_nm FROM policy WHERE plcy_kywd_nm IS NOT NULL", nativeQuery = true)
+    @Query("SELECT DISTINCT p.keyword FROM PolicyEntity p WHERE p.keyword IS NOT NULL")
     List<String> findAllDistinctKeywords();
 
 }

@@ -92,7 +92,8 @@ public class PolicyService {
                             policy.setRegionCode("11000"); 
                             // ---------------------------------------------------------
                                                     
-                            
+                            policy.setKeyword(String.valueOf(data.get("plcyKywdNm")));
+                            policy.setSbizCd(String.valueOf(data.get("sBizCd")));
                             policy.setDetailUrl(String.valueOf(data.get("aplyUrlAddr")));
                             policy.setMinAge(parseInteger(String.valueOf(data.get("sprtTrgtMinAge"))));
                             policy.setMaxAge(parseInteger(String.valueOf(data.get("sprtTrgtMaxAge"))));
