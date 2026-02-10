@@ -38,7 +38,7 @@ public class MemberResponseDTO {
 
     // 추후에 코드를 문자열로 변환하는 로직 추가
     public static MemberResponseDTO fromEntity(MemberEntity entity) {
-        return MemberResponseDTO.builder().memberId(entity.getMember_id()).email(entity.getEmail())
+        return MemberResponseDTO.builder().memberId(entity.getMemberId()).email(entity.getEmail())
                 .nickname(entity.getNickname()).phoneNum(entity.getPhoneNum()).gender(entity.getGender())
                 .birthDate(entity.getBirthDate()).status(entity.getStatus()).createdAt(entity.getCreatedAt())
                 .updatedAt(entity.getUpdatedAt()).build();
