@@ -29,9 +29,9 @@ public class PolicyController {
         return ResponseEntity.ok(policyService.searchPolicies(searchDTO));
     }
 
-    // 상세 조회 + 조회수 증가 (한번에 처리하거나 따로 분리)
-    @GetMapping("/{id}")
-    public ResponseEntity<PolicyResponseDTO> getDetail(@PathVariable Integer id) {
-        return ResponseEntity.ok(policyService.getPolicyDetailAndIncreaseViewCount(id));
-    }
+    // 상세 조회 + 조회수 증가 (한번에 처리하거나 따로 분리) - 컴파일 에러가 나서 잠깐 주석처리해놨습니다 ..! 
+    // @GetMapping("/{id}")
+    // public ResponseEntity<PolicyResponseDTO> getDetail(@PathVariable Integer id) {
+    //     return ResponseEntity.ok(policyService.getPolicyDetailAndIncreaseViewCount(id));
+    // }
 }
