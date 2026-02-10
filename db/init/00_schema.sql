@@ -82,6 +82,7 @@ CREATE TABLE member (
 
 CREATE TABLE policy (
     policy_id           INT             PRIMARY KEY AUTO_INCREMENT  COMMENT '정책 고유번호',
+    biz_id              VARCHAR(20)     NOT NULL UNIQUE             COMMENT '정책 일련번호(API: plcyNo)',
     title               VARCHAR(255)    NOT NULL                    COMMENT '정책명 (API: plcyNm)',
     policy_description  TEXT 	                                    COMMENT '정책 설명 (API: plcyExplnCn)',
     support_content     TEXT 							            COMMENT '지원 내용 (API: plcySprtCn)',

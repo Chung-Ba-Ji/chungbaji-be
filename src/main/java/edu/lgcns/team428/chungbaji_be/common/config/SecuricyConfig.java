@@ -55,17 +55,13 @@ public class SecuricyConfig {
             .csrf(csrf -> csrf.disable()) 
             .cors(Customizer.withDefaults()) 
 
-            // 2. 세션 정책 설정 (JWT 사용 시 무상태성 유지)
-            .sessionManagement(session -> 
-                session.sessionCreationPolicy(SessionCreationPolicy.STATELESS)
-            )
-
             // 3. 인가(Authorization) 규칙 설정
             .authorizeHttpRequests(auth -> auth
                 // Swagger 및 API 문서 관련 허용
                 .requestMatchers(
                     "/swagger-ui/**",
-                    "/v3/api-docs/**"
+                    "/v3/api-docs/**",
+                    "/error"
                 ).permitAll()
                 
                 // Preflight 요청(OPTIONS) 전체 허용
@@ -76,6 +72,11 @@ public class SecuricyConfig {
                     "/member/signUp",
                     "/member/login",
                     "/member/searchPwd"
+                ).permitAll()
+                                   
+                //인증 없이 접근 가능한 정책 관련                    
+                .requestMatchers(
+                    "/api/policy/**"
                 ).permitAll()
                 
                 // 인증이 반드시 필요한 엔드포인트
