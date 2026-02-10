@@ -23,7 +23,7 @@ import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.http.HttpHeaders;
 
 @RestController
-@RequestMapping("/members")
+@RequestMapping("/api/members")
 @RequiredArgsConstructor
 public class MemberController {
     private final MemberService memberService;
