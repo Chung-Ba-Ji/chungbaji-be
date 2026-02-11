@@ -152,10 +152,17 @@ CREATE TABLE bookmark (
     updated_at   TIMESTAMP      NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP  COMMENT '마지막 수정 일시',
 
     CONSTRAINT uq_bookmark_member_policy UNIQUE (member_id, policy_id),
+    
     CONSTRAINT fk_bookmark_member
         FOREIGN KEY (member_id)
             REFERENCES member(member_id)
             ON UPDATE CASCADE,
+    
+    CONSTRAINT fk_bookmark_policy
+        FOREIGN KEY (policy_id)
+            REFERENCES policy(policy_id)
+            ON UPDATE CASCADE,
+    
     CONSTRAINT ck_bookmark_status CHECK (status IN ('CREATED', 'DELETED'))
 ) COMMENT='북마크';
 
