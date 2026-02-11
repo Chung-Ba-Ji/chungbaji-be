@@ -21,9 +21,8 @@ public class CodeEntity {
         @Column(name = "code_id")
         private Integer codeId;
 
-        @ManyToOne(fetch = FetchType.LAZY, optional = false)
-        @JoinColumn(name = "code_group_id", referencedColumnName = "code_group_id", nullable = false)
-        private CodeGroupEntity codeGroup;
+        @Column(name = "code_group", nullable = false, length = 50)
+        private String codeGroup;
 
         @Column(name = "code", length = 50, nullable = false)
         private String code;
