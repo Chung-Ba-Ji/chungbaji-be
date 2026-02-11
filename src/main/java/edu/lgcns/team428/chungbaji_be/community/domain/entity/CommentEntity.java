@@ -7,12 +7,11 @@ import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.annotation.LastModifiedDate;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
-import edu.lgcns.team428.chungbaji_be.member.domain.entity.MemberEntity;
-
 import java.time.LocalDateTime;
 
 @Entity
 @Getter
+@Setter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @AllArgsConstructor // Builder 사용을 위해 추가
 @Builder // 객체 생성을 편리하게 하기 위해 추가
