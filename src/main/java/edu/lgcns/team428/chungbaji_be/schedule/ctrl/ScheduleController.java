@@ -7,7 +7,9 @@ import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.*;
 import lombok.RequiredArgsConstructor;
+import edu.lgcns.team428.chungbaji_be.member.domain.entity.MemberEntity;
 import edu.lgcns.team428.chungbaji_be.schedule.domain.dto.ScheduleResponseDTO;
+import edu.lgcns.team428.chungbaji_be.schedule.domain.entity.ScheduleEntity;
 import edu.lgcns.team428.chungbaji_be.schedule.service.ScheduleService;
 
 @RestController
@@ -31,4 +33,5 @@ public class ScheduleController {
         
         return ResponseEntity.ok(scheduleService.getScheduleDetail(id));
     }
+
 }

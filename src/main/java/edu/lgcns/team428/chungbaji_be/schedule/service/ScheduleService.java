@@ -92,4 +92,11 @@ public class ScheduleService {
 
         return convertToResponseDTO(entity);
     }
+
+    @Transactional
+    public void deleteAllSchedulesByMember(MemberEntity member) {
+        // 해당 멤버의 모든 일정을 찾아서 상태를 DELETED로 변경
+        List<ScheduleEntity> schedules = scheduleRepository.findAllByMember_Email(member.getEmail());
+        schedules.forEach(schedule -> schedule.setStatus("DELETED"));
+    }
 }

@@ -19,12 +19,14 @@ import edu.lgcns.team428.chungbaji_be.member.domain.dto.MemberResponseDTO;
 import edu.lgcns.team428.chungbaji_be.member.domain.entity.MemberEntity;
 import edu.lgcns.team428.chungbaji_be.region.domain.entity.RegionEntity;
 import edu.lgcns.team428.chungbaji_be.region.repository.RegionRepository;
+import edu.lgcns.team428.chungbaji_be.schedule.service.ScheduleService;
 import lombok.RequiredArgsConstructor;
 
 @Service
 @RequiredArgsConstructor
 public class MemberService {
 
+    private final ScheduleService scheduleService;
     private final MemberRepository memberRepository;
     private final RegionRepository regionRepository;
     private final CodeRepository codeRepository;
@@ -251,6 +253,9 @@ public class MemberService {
         if (entity.getStatus() == MemberEntity.MemberStatus.WITHDRAWN) {
             return;
         }
+
+        //회원의 모든 일정을 DELETE 상태로 변경
+        scheduleService.deleteAllSchedulesByMember(entity);
 
         // 회원의 상태 정보 WITHDRAWN으로 변경(dirty checking)
         entity.withdraw();
