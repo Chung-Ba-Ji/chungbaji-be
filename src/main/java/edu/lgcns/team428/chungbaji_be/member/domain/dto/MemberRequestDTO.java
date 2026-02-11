@@ -24,8 +24,10 @@ public class MemberRequestDTO {
     private String gender;
     private LocalDate birth_date;
 
-    // 프론트에서 드롭다운 형식으로 입력받도록 강제 
-    private String region;
+    // 프론트에서 드롭다운 형식으로 입력받도록 강제
+    private String regionSido; // 레벨1: "서울특별시"
+    private String regionSigungu; // 레벨2: "마포구"
+
     private String education;
     private String job;
     private String major;

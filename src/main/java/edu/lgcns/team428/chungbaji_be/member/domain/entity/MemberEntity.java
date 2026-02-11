@@ -3,11 +3,16 @@ package edu.lgcns.team428.chungbaji_be.member.domain.entity;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 
+import org.springframework.data.annotation.CreatedDate;
+import org.springframework.data.annotation.LastModifiedDate;
+import org.springframework.data.jpa.domain.support.AuditingEntityListener;
+
 import edu.lgcns.team428.chungbaji_be.code.domain.entity.CodeEntity;
 import edu.lgcns.team428.chungbaji_be.member.domain.dto.MemberRequestDTO;
 import edu.lgcns.team428.chungbaji_be.region.domain.entity.RegionEntity;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
+import jakarta.persistence.EntityListeners;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
 import jakarta.persistence.FetchType;
@@ -30,6 +35,7 @@ import lombok.ToString;
 @ToString
 @AllArgsConstructor
 @NoArgsConstructor
+@EntityListeners(AuditingEntityListener.class)
 public class MemberEntity {
 
     @Id
@@ -84,9 +90,11 @@ public class MemberEntity {
     @Builder.Default
     private MemberStatus status = MemberStatus.ACTIVE; // 기본적으로 회원 정보 생성 시 자동 활성화
 
+    @CreatedDate
     @Column(name = "created_at", nullable = false, updatable = false, insertable = false)
     private LocalDateTime createdAt;
 
+    @LastModifiedDate
     @Column(name = "updated_at", nullable = false, insertable = false)
     private LocalDateTime updatedAt;
 
@@ -138,7 +146,7 @@ public class MemberEntity {
     }
 
     // 회원정보 수정용
-    public void updateProfile(
+    public void updateProfilePatch(
             String nickname,
             String phoneNum,
             String gender,
@@ -149,20 +157,17 @@ public class MemberEntity {
             CodeEntity major,
             CodeEntity income,
             CodeEntity special) {
-        if (nickname != null && !nickname.isBlank())
+        if (nickname != null)
             this.nickname = nickname;
-        if (phoneNum != null && !phoneNum.isBlank())
+        if (phoneNum != null)
             this.phoneNum = phoneNum;
-        if (gender != null && !gender.isBlank())
+        if (gender != null)
             this.gender = gender;
-
-        // 생년월일은 null 허용 정책이면 그대로 세팅, 아니면 조건 걸어도 됨
         if (birthDate != null)
             this.birthDate = birthDate;
-
-        // 코드/지역은 null이면 "변경하지 않음"으로 처리
         if (region != null)
             this.region = region;
+
         if (education != null)
             this.education = education;
         if (job != null)

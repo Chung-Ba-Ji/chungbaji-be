@@ -37,7 +37,7 @@ public class JwtProvider {
     }
 
     // refresh token 발급
-    public String CreateRT(String email) {
+    public String createRT(String email) {
         System.out.println("provider createRT: " + email);
         return Jwts.builder().setSubject(email).setIssuedAt(new Date())
                 .setExpiration(new Date(System.currentTimeMillis() + 1000 * 60 * 60 * 24 * 7)).signWith(getStringKey())

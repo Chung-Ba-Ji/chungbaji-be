@@ -3,7 +3,6 @@ package edu.lgcns.team428.chungbaji_be.member.service;
 import java.security.SecureRandom;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Optional;
 
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -14,6 +13,7 @@ import edu.lgcns.team428.chungbaji_be.code.repository.CodeRepository;
 import edu.lgcns.team428.chungbaji_be.common.service.RefreshTokenService;
 import edu.lgcns.team428.chungbaji_be.common.util.JwtProvider;
 import edu.lgcns.team428.chungbaji_be.member.dao.MemberRepository;
+import edu.lgcns.team428.chungbaji_be.member.domain.dto.LoginRequestDTO;
 import edu.lgcns.team428.chungbaji_be.member.domain.dto.MemberRequestDTO;
 import edu.lgcns.team428.chungbaji_be.member.domain.dto.MemberResponseDTO;
 import edu.lgcns.team428.chungbaji_be.member.domain.entity.MemberEntity;
@@ -34,75 +34,137 @@ public class MemberService {
 
     private final PasswordEncoder passwordEncoder;
 
+    private static final String CG_EDUCATION = "0049";
+    private static final String CG_JOB = "0013";
+    private static final String CG_MAJOR = "0011";
+    private static final String CG_INCOME = "0043";
+    private static final String CG_SPECIAL = "0014";
+
     // 회원가입
     @Transactional
     public MemberResponseDTO signUp(MemberRequestDTO request) {
         System.out.println("member service signUp call");
 
-        // 문자열 → 엔티티(코드) 변환
-        RegionEntity region = findRegionByName(request.getRegion());
+        // 1) 필수값 검증(null 처리)
+        if (request.getEmail() == null || request.getEmail().isBlank())
+            throw new IllegalArgumentException("email은 필수입니다.");
+        if (request.getPassword() == null || request.getPassword().isBlank())
+            throw new IllegalArgumentException("password는 필수입니다.");
+        if (request.getNickname() == null || request.getNickname().isBlank())
+            throw new IllegalArgumentException("nickname은 필수입니다.");
+        if (request.getPhone_num() == null || request.getPhone_num().isBlank())
+            throw new IllegalArgumentException("phone_num은 필수입니다.");
+        if (request.getGender() == null || request.getGender().isBlank())
+            throw new IllegalArgumentException("gender는 필수입니다.");
+        if (request.getRegionSido() == null || request.getRegionSido().isBlank())
+            throw new IllegalArgumentException("regionSido(시/도)는 필수입니다.");
+        if (request.getRegionSigungu() == null || request.getRegionSigungu().isBlank())
+            throw new IllegalArgumentException("regionSigungu(시/군/구)는 필수입니다.");
 
-        CodeEntity education = findCodeByDesc("EDUCATION", request.getEducation());
-        CodeEntity job = findCodeByDesc("JOB", request.getJob());
-        CodeEntity major = findCodeByDesc("MAJOR", request.getMajor());
-        CodeEntity income = findCodeByDesc("INCOME", request.getIncome());
-        CodeEntity special = findCodeByDesc("SPECIAL", request.getSpecial());
+        // 지역 변환 (DB가 '서울특별시 마포구' 형태도 가지고 있으므로 둘 다 허용)
+        RegionEntity region = findRegionByName(request.getRegionSido(), request.getRegionSigungu());
+
+        // 코드 변환 (프론트가 문자열값(= code_desc)를 보낸다는 가정)
+        CodeEntity education = findCodeByDescOrNull(CG_EDUCATION, request.getEducation());
+        CodeEntity job = findCodeByDescOrNull(CG_JOB, request.getJob());
+        CodeEntity major = findCodeByDescOrNull(CG_MAJOR, request.getMajor());
+        CodeEntity income = findCodeByDescOrNull(CG_INCOME, request.getIncome());
+        CodeEntity special = findCodeByDescOrNull(CG_SPECIAL, request.getSpecial());
 
         // 비밀번호 해싱
         String encodedPassword = passwordEncoder.encode(request.getPassword());
 
-        // 이메일 기준 회원 존재 여부 확인
-        Optional<MemberEntity> optional = memberRepository.findByEmail(request.getEmail());
+        // 이메일 기준 회원 처리
+        MemberEntity member = memberRepository.findByEmail(request.getEmail())
+                .map(existing -> {
 
-        // DB에 존재하지 않는 회원인 경우 save
-        if (optional.isEmpty()) {
-            MemberEntity member = MemberEntity.builder()
-                    .email(request.getEmail())
-                    .password(encodedPassword)
-                    .nickname(request.getNickname())
-                    .phoneNum(request.getPhone_num())
-                    .gender(request.getGender())
-                    .birthDate(request.getBirth_date())
-                    .region(region)
-                    .education(education)
-                    .job(job)
-                    .major(major)
-                    .income(income)
-                    .special(special)
-                    .status(MemberEntity.MemberStatus.ACTIVE)
-                    .build();
+                    // WITHDRAWN: 탈퇴 회원 재가입 금지
+                    if (existing.getStatus() == MemberEntity.MemberStatus.WITHDRAWN) {
+                        throw new IllegalStateException("탈퇴한 회원은 재가입할 수 없습니다.");
+                    }
 
-            MemberEntity saved = memberRepository.save(member);
-            return MemberResponseDTO.fromEntity(saved);
-        }
+                    // INACTIVE: 비활성 회원이면 재활성화
+                    if (existing.getStatus() == MemberEntity.MemberStatus.INACTIVE) {
 
-        // 회원 정보가 존재하는 경우
-        MemberEntity existing = optional.get();
+                        // 닉네임 변경 시에만 중복 체크
+                        if (!existing.getNickname().equals(request.getNickname())
+                                && memberRepository.existsByNickname(request.getNickname())) {
+                            throw new IllegalStateException("이미 사용 중인 닉네임입니다.");
+                        }
 
-        // 탈퇴 회원(WITHDRAWN)은 재가입 불가
-        if (existing.getStatus() == MemberEntity.MemberStatus.WITHDRAWN) {
-            throw new IllegalStateException("탈퇴한 회원은 재가입할 수 없습니다.");
-        }
+                        existing.reactivate(
+                                encodedPassword,
+                                request.getNickname(),
+                                request.getPhone_num(),
+                                request.getGender(),
+                                request.getBirth_date(),
+                                region,
+                                education,
+                                job,
+                                major,
+                                income,
+                                special);
+                        return existing;
+                    }
 
-        // 비활성 회원은 재활성화(INACTIVE -> ACTIVE)
-        if (existing.getStatus() == MemberEntity.MemberStatus.INACTIVE) {
-            existing.reactivate(
-                    encodedPassword,
-                    request.getNickname(),
-                    request.getPhone_num(),
-                    request.getGender(),
-                    request.getBirth_date(),
-                    region,
-                    education,
-                    job,
-                    major,
-                    income,
-                    special);
-            return MemberResponseDTO.fromEntity(existing);
-        }
+                    // ACTIVE: 가입 불가
+                    throw new IllegalStateException("이미 가입된 이메일입니다.");
+                })
+                .orElseGet(() -> {
+                    // 신규 가입일 때만 닉네임 중복 체크
+                    if (memberRepository.existsByNickname(request.getNickname()))
+                        throw new IllegalStateException("이미 사용 중인 닉네임입니다.");
 
-        // ACTIVE 인데 또 가입 시도
-        throw new IllegalStateException("이미 가입된 회원입니다.");
+                    return MemberEntity.builder()
+                            .email(request.getEmail())
+                            .password(encodedPassword)
+                            .nickname(request.getNickname())
+                            .phoneNum(request.getPhone_num())
+                            .gender(request.getGender())
+                            .birthDate(request.getBirth_date())
+                            .region(region)
+                            .education(education)
+                            .job(job)
+                            .major(major)
+                            .income(income)
+                            .special(special)
+                            .status(MemberEntity.MemberStatus.ACTIVE)
+                            .build();
+                });
+
+        // DTO 반환
+        MemberEntity saved = memberRepository.save(member);
+        return MemberResponseDTO.fromEntity(saved);
+    }
+
+    private RegionEntity findRegionByName(String level1NameRaw, String level2NameRaw) {
+
+        String level1Name = level1NameRaw.trim();
+        String level2Name = level2NameRaw.trim();
+
+        RegionEntity level1 = regionRepository
+                .findByLevelAndRegionName(1, level1Name)
+                .orElseThrow(() -> new IllegalArgumentException(
+                        "존재하지 않는 시도(레벨1) 지역입니다: [" + level1NameRaw + "]"));
+
+        String fullLevel2Name = level1Name + " " + level2Name;
+
+        return regionRepository
+                .findByLevelAndParentRegion_RegionCodeAndRegionName(2, level1.getRegionCode(), level2Name)
+                .or(() -> regionRepository.findByLevelAndParentRegion_RegionCodeAndRegionName(
+                        2, level1.getRegionCode(), fullLevel2Name))
+                .orElseThrow(() -> new IllegalArgumentException(
+                        "존재하지 않는 시군구(레벨2) 지역입니다: [" + level1NameRaw + " " + level2NameRaw + "]"));
+    }
+
+    // code_desc 기준 조회 (프론트가 "고교 졸업", "재직자" 등 desc를 보낸다는 가정)
+    private CodeEntity findCodeByDescOrNull(String codeGroup, String codeDesc) {
+        if (codeDesc == null || codeDesc.isBlank())
+            return null;
+
+        return codeRepository.findByCodeGroupAndCodeDesc(codeGroup, codeDesc)
+                .orElseThrow(() -> new IllegalArgumentException(
+                        "유효하지 않은 코드입니다. group=" + codeGroup + ", desc=" + codeDesc));
     }
 
     // 회원정보 수정
@@ -113,47 +175,48 @@ public class MemberService {
         MemberEntity entity = memberRepository.findByEmail(email)
                 .orElseThrow(() -> new RuntimeException("member not found"));
 
-        // 문자열 → RegionEntity
-        RegionEntity region = findRegionOrNull(request.getRegion());
+        // 닉네임 중복 체크
+        String newNickname = trimToNull(request.getNickname());
+        if (newNickname != null && !newNickname.equals(entity.getNickname())
+                && memberRepository.existsByNickname(newNickname)) {
+            throw new IllegalStateException("이미 사용 중인 닉네임입니다.");
+        }
 
-        // 문자열 → CodeEntity (codeDesc 기준)
-        CodeEntity education = findCodeOrNull("EDUCATION", request.getEducation());
-        CodeEntity job = findCodeOrNull("JOB", request.getJob());
-        CodeEntity major = findCodeOrNull("MAJOR", request.getMajor());
-        CodeEntity income = findCodeOrNull("INCOME", request.getIncome());
-        CodeEntity special = findCodeOrNull("SPECIAL", request.getSpecial());
+        // region은 (sido, sigungu) 둘 다 들어온 경우에만 변경
+        RegionEntity newRegion = null;
+        String sido = trimToNull(request.getRegionSido());
+        String sigungu = trimToNull(request.getRegionSigungu());
+        if (sido != null || sigungu != null) {
+            if (sido == null || sigungu == null) {
+                throw new IllegalArgumentException("지역 수정은 regionSido/regionSigungu 둘 다 필요합니다.");
+            }
+            newRegion = findRegionByName(sido, sigungu);
+        }
 
-        // 엔티티 값 갱신 (자동 UPDATE - JPA 영속성)
-        entity.updateProfile(
-                request.getNickname(),
-                request.getPhone_num(),
-                request.getGender(),
+        CodeEntity education = findCodeByDescOrNull(CG_EDUCATION, request.getEducation());
+        CodeEntity job = findCodeByDescOrNull(CG_JOB, request.getJob());
+        CodeEntity major = findCodeByDescOrNull(CG_MAJOR, request.getMajor());
+        CodeEntity income = findCodeByDescOrNull(CG_INCOME, request.getIncome());
+        CodeEntity special = findCodeByDescOrNull(CG_SPECIAL, request.getSpecial());
+
+        // null이면 기존정보 유지
+        entity.updateProfilePatch(
+                newNickname,
+                trimToNull(request.getPhone_num()),
+                trimToNull(request.getGender()),
                 request.getBirth_date(),
-                region,
-                education,
-                job,
-                major,
-                income,
-                special);
+                newRegion, 
+                education, job, major, income, special 
+        );
 
         return MemberResponseDTO.fromEntity(entity);
     }
 
-    private RegionEntity findRegionOrNull(String regionName) {
-        if (regionName == null || regionName.isBlank())
+    private String trimToNull(String s) {
+        if (s == null)
             return null;
-
-        return regionRepository.findByRegionName(regionName)
-                .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 지역입니다: " + regionName));
-    }
-
-    private CodeEntity findCodeOrNull(String group, String desc) {
-        if (desc == null || desc.isBlank())
-            return null;
-
-        return codeRepository.findByCodeGroup_CodeGroupAndCodeDesc(group, desc)
-                .orElseThrow(() -> new IllegalArgumentException(
-                        "존재하지 않는 코드입니다. group=" + group + ", desc=" + desc));
+        String t = s.trim();
+        return t.isEmpty() ? null : t;
     }
 
     // 비번 찾기: 인증 성공 시 임시 비밀번호 발급 후 해싱 저장
@@ -178,8 +241,8 @@ public class MemberService {
 
     // 회원 탈퇴
     @Transactional
-    public void deleteByEmail(String email) {
-        System.out.println("member service delete call");
+    public void withdraw(String email) {
+        System.out.println("member service withdraw call");
 
         MemberEntity entity = memberRepository.findByEmail(email)
                 .orElseThrow(() -> new RuntimeException("member not found"));
@@ -189,27 +252,32 @@ public class MemberService {
             return;
         }
 
-        // 회원의 상태 정보 WITHDRAWN으로 변경 
-        entity.withdraw(); // JPA의 영속성
+        // 회원의 상태 정보 WITHDRAWN으로 변경(dirty checking)
+        entity.withdraw();
+        refreshTokenService.deleteToken(email);
     }
 
     // 로그인
     @Transactional
-    public Map<String, Object> login(MemberRequestDTO request) {
+    public Map<String, Object> login(LoginRequestDTO request) {
         System.out.println("member service login call");
 
         MemberEntity member = memberRepository.findByEmail(request.getEmail())
                 .orElseThrow(() -> new RuntimeException("로그인 실패"));
 
-        if (!passwordEncoder.matches(request.getPassword(), member.getPassword())) {
-            throw new RuntimeException("Password not found");
+        // 상태 체크 (활성화된 계정인 경우에만 로그인 가능)
+        if (member.getStatus() == MemberEntity.MemberStatus.WITHDRAWN) {
+            throw new RuntimeException("탈퇴한 회원은 로그인할 수 없습니다.");
+        }
+        if (member.getStatus() == MemberEntity.MemberStatus.INACTIVE) {
+            throw new RuntimeException("비활성화된 계정입니다.");
         }
 
         Map<String, Object> map = new HashMap<>();
 
         // 토큰 생성
         String at = jwtProvider.createAT(member.getEmail());
-        String rt = jwtProvider.CreateRT(member.getEmail());
+        String rt = jwtProvider.createRT(member.getEmail());
 
         // redis에 refresh-token 저장
         refreshTokenService.saveToken(member.getEmail(), rt);
@@ -223,15 +291,13 @@ public class MemberService {
 
     }
 
-    // 로그아웃(토큰 관련 로직 추가)
+    // 로그아웃(= 토큰 관련 로직 추가)
     @Transactional
     public void logout(String accessToken) {
         System.out.println("member service logout call");
 
         String email = jwtProvider.getUserEmailFromToken(accessToken);
-
         refreshTokenService.deleteToken(email);
-
     }
 
     // 임시 비번 생성
@@ -244,25 +310,6 @@ public class MemberService {
             sb.append(CHARSET.charAt(RANDOM.nextInt(CHARSET.length())));
         }
         return sb.toString();
-    }
-
-    // region 문자열 -> 코드(int)
-    private RegionEntity findRegionByName(String regionName) {
-        if (regionName == null || regionName.isBlank())
-            return null;
-
-        return regionRepository.findByRegionName(regionName)
-                .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 지역입니다: " + regionName));
-    }
-
-    // code 문자열 -> 코드(int)
-    private CodeEntity findCodeByDesc(String group, String desc) {
-        if (desc == null || desc.isBlank())
-            return null;
-
-        return codeRepository.findByCodeGroup_CodeGroupAndCodeDesc(group, desc)
-                .orElseThrow(() -> new IllegalArgumentException(
-                        "존재하지 않는 코드입니다. group=" + group + ", desc=" + desc));
     }
 
 }
