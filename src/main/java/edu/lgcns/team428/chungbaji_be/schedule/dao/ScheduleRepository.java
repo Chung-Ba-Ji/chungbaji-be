@@ -23,7 +23,4 @@ public interface ScheduleRepository extends JpaRepository<ScheduleEntity, Intege
 
     // 특정 유저, 정책, 일정의 상태 확인해서 일정 중복 체크
     boolean existsByMemberAndPolicyAndStatus(MemberEntity member, PolicyEntity policy, String status);
-
-    // 일정 삭제
-    void deleteByMemberAndPolicy(MemberEntity member, PolicyEntity policy);
 }
