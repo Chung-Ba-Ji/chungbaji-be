@@ -74,10 +74,9 @@ public class SecuricyConfig {
                     "/api/members/searchPwd"
                 ).permitAll()
                                    
-                //정책/캘린더 스웨거 테스트용                    
+                // 인증 없이 접근 가능한 정책 관련 엔드포인트                 
                 .requestMatchers(
-                    "/api/policy/**",
-                    "/api/schedule/**"
+                    "/api/policy/**"
                 ).permitAll()
                 
                 // 인증이 반드시 필요한 엔드포인트
@@ -85,7 +84,8 @@ public class SecuricyConfig {
                     "/api/members/logout",
                     "/api/members/update/**",
                     "/api/members/delete/**",
-                    "/api/bookmarks/**"
+                    "/api/bookmarks/**",
+                    "/api/schedule/**"
                 ).authenticated()
                 
                 // 그 외 모든 요청은 인증 필요
