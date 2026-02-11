@@ -3,6 +3,7 @@ package edu.lgcns.team428.chungbaji_be.member.ctrl;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import edu.lgcns.team428.chungbaji_be.member.domain.dto.LoginRequestDTO;
 import edu.lgcns.team428.chungbaji_be.member.domain.dto.MemberRequestDTO;
 import edu.lgcns.team428.chungbaji_be.member.domain.dto.MemberResponseDTO;
 import edu.lgcns.team428.chungbaji_be.member.domain.dto.SearchPwdRequestDTO;
@@ -40,7 +41,7 @@ public class MemberController {
 
     // 로그인
     @PostMapping("/login")
-    public ResponseEntity<MemberResponseDTO> login(@RequestBody MemberRequestDTO request) {
+    public ResponseEntity<MemberResponseDTO> login(@RequestBody LoginRequestDTO request) {
         System.out.println("member controller login call");
 
         Map<String, Object> map = memberService.login(request);
@@ -97,14 +98,14 @@ public class MemberController {
     }
 
     // 회원 탈퇴
-    @DeleteMapping("/delete")
-    public ResponseEntity<Void> delete() {
-        System.out.println("member controller delete call");
+    @DeleteMapping("/me")
+    public ResponseEntity<Void> withdraw() {
+        System.out.println("member controller withdraw call");
 
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
         String email = auth.getName();
 
-        memberService.deleteByEmail(email);
+        memberService.withdraw(email);
         return ResponseEntity.status(HttpStatus.NO_CONTENT).body(null);
     }
 
