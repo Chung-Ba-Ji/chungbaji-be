@@ -13,6 +13,7 @@ import edu.lgcns.team428.chungbaji_be.code.repository.CodeRepository;
 import edu.lgcns.team428.chungbaji_be.common.service.RefreshTokenService;
 import edu.lgcns.team428.chungbaji_be.common.util.JwtProvider;
 import edu.lgcns.team428.chungbaji_be.member.dao.MemberRepository;
+import edu.lgcns.team428.chungbaji_be.member.domain.dto.LoginRequestDTO;
 import edu.lgcns.team428.chungbaji_be.member.domain.dto.MemberRequestDTO;
 import edu.lgcns.team428.chungbaji_be.member.domain.dto.MemberResponseDTO;
 import edu.lgcns.team428.chungbaji_be.member.domain.entity.MemberEntity;
@@ -198,14 +199,14 @@ public class MemberService {
         CodeEntity income = findCodeByDescOrNull(CG_INCOME, request.getIncome());
         CodeEntity special = findCodeByDescOrNull(CG_SPECIAL, request.getSpecial());
 
-        // updateProfile이 "null이면 유지" 형태로 동작하도록 맞추는 게 베스트
+        // null이면 기존정보 유지
         entity.updateProfilePatch(
                 newNickname,
                 trimToNull(request.getPhone_num()),
                 trimToNull(request.getGender()),
                 request.getBirth_date(),
-                newRegion, // null이면 기존 유지
-                education, job, major, income, special // null이면 기존 유지 or null 허용 정책에 맞춰
+                newRegion, 
+                education, job, major, income, special 
         );
 
         return MemberResponseDTO.fromEntity(entity);
@@ -240,8 +241,8 @@ public class MemberService {
 
     // 회원 탈퇴
     @Transactional
-    public void deleteByEmail(String email) {
-        System.out.println("member service delete call");
+    public void withdraw(String email) {
+        System.out.println("member service withdraw call");
 
         MemberEntity entity = memberRepository.findByEmail(email)
                 .orElseThrow(() -> new RuntimeException("member not found"));
@@ -253,11 +254,12 @@ public class MemberService {
 
         // 회원의 상태 정보 WITHDRAWN으로 변경(dirty checking)
         entity.withdraw();
+        refreshTokenService.deleteToken(email);
     }
 
     // 로그인
     @Transactional
-    public Map<String, Object> login(MemberRequestDTO request) {
+    public Map<String, Object> login(LoginRequestDTO request) {
         System.out.println("member service login call");
 
         MemberEntity member = memberRepository.findByEmail(request.getEmail())
