@@ -16,7 +16,7 @@ public class CodeResponseDTO {
 
     public static CodeResponseDTO fromEntity(CodeEntity entity) {
         return CodeResponseDTO.builder()
-                .codeGroup(entity.getCodeGroup().getCodeGroup())
+                .codeGroup(entity.getCodeGroup())
                 .code(entity.getCode())
                 .codeDesc(entity.getCodeDesc())
                 .build();

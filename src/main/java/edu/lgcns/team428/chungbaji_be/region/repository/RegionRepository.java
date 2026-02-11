@@ -9,5 +9,12 @@ import org.springframework.stereotype.Repository;
 
 @Repository
 public interface RegionRepository extends JpaRepository<RegionEntity, Integer> {
-    Optional<RegionEntity> findByRegionName(String regionName);
+    // 레벨1(시/도): level=1 AND region_name=?
+    Optional<RegionEntity> findByLevelAndRegionName(Integer level, String regionName);
+
+    Optional<RegionEntity> findByLevelAndParentRegion_RegionCodeAndRegionName(
+            Integer level,
+            String parentRegionCode,
+            String regionName);
+
 }

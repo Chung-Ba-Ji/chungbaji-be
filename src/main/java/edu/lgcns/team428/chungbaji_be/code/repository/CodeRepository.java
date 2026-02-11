@@ -9,7 +9,5 @@ import org.springframework.stereotype.Repository;
 
 @Repository
 public interface CodeRepository extends JpaRepository<CodeEntity, Integer> {
-    Optional<CodeEntity> findByCodeGroup_CodeGroupAndCodeDesc(
-            String codeGroup,
-            String codeDesc);
+    Optional<CodeEntity> findByCodeGroupAndCodeDesc(String codeGroup, String codeDesc);
 }

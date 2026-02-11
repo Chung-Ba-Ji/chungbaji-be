@@ -30,5 +30,5 @@ public class RegionEntity {
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "parent_region_code", referencedColumnName = "region_code")
-    private RegionEntity parentRegionCode;
+    private RegionEntity parentRegion;
 }
