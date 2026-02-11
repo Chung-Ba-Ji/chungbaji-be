@@ -67,8 +67,12 @@ public class BookmarkService {
                                 member.getMemberId(),
                                 policyId).ifPresent(bookmark -> {
                                         if (bookmark.getStatus() != BookmarkEntity.BookmarkStatus.DELETED) {
-                                                bookmark.markDeleted(); // 상태만 변경
-                                                scheduleService.deleteScheduleFromBookmark(member, policyRepository.findById(policyId).get());
+                                                bookmark.markDeleted();
+                                                
+                                                PolicyEntity policy = policyRepository.findById(policyId)
+                                                        .orElseThrow(() -> new RuntimeException("policy not found"));
+                                                
+                                                scheduleService.deleteScheduleFromBookmark(member, policy); 
                                         }
                                 });
 

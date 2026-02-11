@@ -37,7 +37,14 @@ public class ScheduleEntity {
     @Column(name = "is_alarm", length = 1)
     private String isAlarm;
 
+    @Column(name = "status", nullable = false)
     private String status;
+
+    //상태 변경 메서드
+    public void setStatus(String status) {
+        this.status = status;
+        this.updatedAt = LocalDateTime.now(); // 수정 시 시간 업데이트
+    }
 
     @Column(name = "created_at", updatable = false)
     private LocalDateTime createdAt;
@@ -50,5 +57,6 @@ public class ScheduleEntity {
         this.createdAt = LocalDateTime.now();
         this.updatedAt = LocalDateTime.now();
         if (this.isAlarm == null) this.isAlarm = "N";
+        if (this.status == null) this.status = "ACTIVE";
     }
 }
