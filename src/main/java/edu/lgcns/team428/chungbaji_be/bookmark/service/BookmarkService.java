@@ -12,7 +12,7 @@ import edu.lgcns.team428.chungbaji_be.member.dao.MemberRepository;
 import edu.lgcns.team428.chungbaji_be.member.domain.entity.MemberEntity;
 import edu.lgcns.team428.chungbaji_be.policy.dao.PolicyRepository;
 import edu.lgcns.team428.chungbaji_be.policy.domain.entity.PolicyEntity;
-
+import edu.lgcns.team428.chungbaji_be.schedule.service.ScheduleService;
 import lombok.RequiredArgsConstructor;
 
 @Service
@@ -21,6 +21,7 @@ public class BookmarkService {
         private final BookmarkRepository bookmarkRepository;
         private final MemberRepository memberRepository;
         private final PolicyRepository policyRepository;
+        private final ScheduleService scheduleService;
 
         // 북마크 등록
         @Transactional
@@ -36,12 +37,19 @@ public class BookmarkService {
                 // 상태 변경 또는 생성
                 BookmarkEntity entity = bookmarkRepository.findByMemberAndPolicy(member, policy)
                                 .map(b -> {
-                                        if (b.getStatus() == BookmarkEntity.BookmarkStatus.DELETED)
+                                        if (b.getStatus() == BookmarkEntity.BookmarkStatus.DELETED){
                                                 b.markCreated();
+                                                //삭제되었다가 다시 북마크한 경우 일정 재생성
+                                                scheduleService.createScheduleFromBookmark(member, policy);
+                                        }
                                         return b;
                                 })
-                                .orElseGet(() -> bookmarkRepository
-                                                .save(BookmarkEntity.builder().member(member).policy(policy).build()));
+                                .orElseGet(() -> {
+                                        BookmarkEntity saved = bookmarkRepository.save(BookmarkEntity.builder().member(member).policy(policy).build());
+                                        // 처음 북마크하는 경우 일정 생성
+                                        scheduleService.createScheduleFromBookmark(member, policy); 
+                                        return saved;
+                                });
 
                 return BookmarkResponseDTO.fromEntity(entity);
         }
@@ -60,6 +68,7 @@ public class BookmarkService {
                                 policyId).ifPresent(bookmark -> {
                                         if (bookmark.getStatus() != BookmarkEntity.BookmarkStatus.DELETED) {
                                                 bookmark.markDeleted(); // 상태만 변경
+                                                scheduleService.deleteScheduleFromBookmark(member, policyRepository.findById(policyId).get());
                                         }
                                 });
 
