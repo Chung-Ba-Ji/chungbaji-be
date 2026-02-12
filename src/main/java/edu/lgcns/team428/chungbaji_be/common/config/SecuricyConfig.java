@@ -36,7 +36,7 @@ public class SecuricyConfig {
 
         // JwtFilter에서 설정한 preflight 요청 시 응답헤더에 담는 정보 (= 혀용 가능한 요청에 대한 정보)
         CorsConfiguration config = new CorsConfiguration();
-        config.setAllowedOrigins(List.of("http://localhost:3000"));
+        config.setAllowedOrigins(List.of("http://localhost:5173"));
         config.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "OPTIONS"));
         config.setAllowedHeaders(List.of("Authorization", "Content-Type"));
         config.setExposedHeaders(List.of("Authorization"));
