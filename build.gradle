@@ -35,7 +35,7 @@ dependencies {
 	runtimeOnly 'io.jsonwebtoken:jjwt-jackson:0.11.5'
 
 	// swagger api lib
-	implementation 'org.springdoc:springdoc-openapi-starter-webmvc-ui:2.6.0'
+	implementation 'org.springdoc:springdoc-openapi-starter-webmvc-ui:3.0.1'
 
 	// spring security lib
 	implementation 'org.springframework.boot:spring-boot-starter-security'

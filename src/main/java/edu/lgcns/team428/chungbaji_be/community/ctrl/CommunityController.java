@@ -40,6 +40,8 @@ public class CommunityController {
     // 게시글 작성
     @PostMapping("/posts")
     public ResponseEntity<PostEntity> createPost(@RequestBody PostRequestDTO postRequest) {
+        System.out.println(postRequest);
+
         return ResponseEntity.ok(communityService.createPost(postRequest));
     }
 
