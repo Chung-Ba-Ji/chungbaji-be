@@ -105,8 +105,8 @@ public class MemberEntity {
     // 비번 해싱 저장
     public static MemberEntity from(MemberRequestDTO dto, String password) {
         return MemberEntity.builder().email(dto.getEmail()).password(password)
-                .nickname(dto.getNickname()).phoneNum(dto.getPhone_num())
-                .gender(dto.getGender()).birthDate(dto.getBirth_date()).build();
+                .nickname(dto.getNickname()).phoneNum(dto.getPhoneNum())
+                .gender(dto.getGender()).birthDate(dto.getBirthDate()).build();
     }
 
     public void updatePwd(String encodedPassword) {

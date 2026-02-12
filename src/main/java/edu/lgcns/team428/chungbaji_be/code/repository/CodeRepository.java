@@ -11,5 +11,5 @@ import org.springframework.stereotype.Repository;
 @Repository
 public interface CodeRepository extends JpaRepository<CodeEntity, Integer> {
     List<CodeEntity> findByCodeGroupOrderByCodeAsc(String codeGroup);
-    Optional<CodeEntity> findByCodeGroupAndCodeDesc(String codeGroup, String codeDesc);
+    Optional<CodeEntity> findByCodeGroupAndCode(String codeGroup, String code);
 }

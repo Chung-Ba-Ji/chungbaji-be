@@ -12,13 +12,5 @@ import org.springframework.stereotype.Repository;
 public interface RegionRepository extends JpaRepository<RegionEntity, Integer> {
     List<RegionEntity> findByLevelOrderByRegionCodeAsc(Integer level);
     List<RegionEntity> findByParentRegion_RegionCodeOrderByRegionCodeAsc(String parentRegionCode);
-
-    // 레벨1(시/도): level=1 AND region_name=?
-    Optional<RegionEntity> findByLevelAndRegionName(Integer level, String regionName);
-
-    Optional<RegionEntity> findByLevelAndParentRegion_RegionCodeAndRegionName(
-            Integer level,
-            String parentRegionCode,
-            String regionName);
-
+    Optional<RegionEntity> findByRegionCode(String regionCode);
 }
