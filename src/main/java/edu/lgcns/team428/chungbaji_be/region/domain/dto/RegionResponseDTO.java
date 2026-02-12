@@ -22,7 +22,9 @@ public class RegionResponseDTO {
                 .regionCode(entity.getRegionCode())
                 .regionName(entity.getRegionName())
                 .level(entity.getLevel())
-                .parentRegionCode(entity.getParentRegion().getRegionCode())
+                .parentRegionCode(entity.getParentRegion() != null
+                        ? entity.getParentRegion().getRegionCode()
+                        : null)
                 .build();
     }
 }
