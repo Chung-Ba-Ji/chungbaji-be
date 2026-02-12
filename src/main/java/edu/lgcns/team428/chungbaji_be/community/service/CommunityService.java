@@ -107,7 +107,8 @@ public class CommunityService {
                 .orElseThrow(() -> new IllegalArgumentException("post not found"));
         MemberEntity member = memberRepository.findById(commentRequest.getMemberId())
                 .orElseThrow(() -> new IllegalArgumentException("member not found"));
-        return commentRequest.toEntity(post, member);
+
+        return commentRepository.save(commentRequest.toEntity(post, member));
     }
 
     // 게시글 댓글 수정
