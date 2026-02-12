@@ -79,8 +79,9 @@ public class SecuricyConfig {
                                 "/api/policy/**"
                         ).permitAll()
                         
-                        // 인증 없이 접근 가능한 지역 관련 엔드포인트
+                        // 인증 없이 접근 가능한 코드, 지역 관련 엔드포인트
                         .requestMatchers(
+                                "/api/codes/**",
                                 "/api/regions/**"
                         ).permitAll()
 
