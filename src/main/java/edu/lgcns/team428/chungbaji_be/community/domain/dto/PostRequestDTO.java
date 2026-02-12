@@ -6,10 +6,9 @@ import edu.lgcns.team428.chungbaji_be.member.domain.entity.MemberEntity;
 import edu.lgcns.team428.chungbaji_be.policy.domain.entity.PolicyEntity;
 import lombok.*;
 
-@Builder
 @Getter
+@Setter
 @NoArgsConstructor
-@AllArgsConstructor
 @ToString
 public class PostRequestDTO {
 

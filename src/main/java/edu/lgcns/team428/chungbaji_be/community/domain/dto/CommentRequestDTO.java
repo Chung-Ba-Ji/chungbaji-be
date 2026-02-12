@@ -5,10 +5,9 @@ import edu.lgcns.team428.chungbaji_be.community.domain.entity.PostEntity;
 import edu.lgcns.team428.chungbaji_be.member.domain.entity.MemberEntity;
 import lombok.*;
 
-@Builder
 @Getter
+@Setter
 @NoArgsConstructor
-@AllArgsConstructor
 @ToString
 public class CommentRequestDTO {
 

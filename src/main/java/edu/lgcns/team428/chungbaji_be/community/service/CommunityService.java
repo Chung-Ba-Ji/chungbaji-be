@@ -48,6 +48,7 @@ public class CommunityService {
     // 게시글 작성
     @Transactional
     public PostEntity createPost(PostRequestDTO postRequest) {
+
         MemberEntity member = memberRepository.findById(postRequest.getMemberId())
                 .orElseThrow(() -> new IllegalArgumentException("member not found"));
         PolicyEntity policy = policyRepository.findById(postRequest.getPolicyId())
