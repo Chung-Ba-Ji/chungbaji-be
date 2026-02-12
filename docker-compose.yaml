@@ -16,3 +16,10 @@ services:
       - ./db/init:/docker-entrypoint-initdb.d
       # DB 데이터 영구 보관용
       - ./mariadb_data:/var/lib/mysql
+
+  redis:
+    image: redis:alpine
+    container_name: chung-ba-ji-redis
+    restart: always
+    ports:
+      - "6379:6379"
