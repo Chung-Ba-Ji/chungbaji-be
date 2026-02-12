@@ -31,7 +31,7 @@ public class PostEntity {
     private MemberEntity member;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "policy_id", nullable = false)
+    @JoinColumn(name = "policy_id")
     private PolicyEntity policy;
 
     @ManyToOne(fetch = FetchType.LAZY)

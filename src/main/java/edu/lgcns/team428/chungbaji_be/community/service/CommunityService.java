@@ -48,16 +48,19 @@ public class CommunityService {
     // 게시글 작성
     @Transactional
     public PostEntity createPost(PostRequestDTO postRequest) {
-
         MemberEntity member = memberRepository.findById(postRequest.getMemberId())
                 .orElseThrow(() -> new IllegalArgumentException("member not found"));
-        PolicyEntity policy = policyRepository.findById(postRequest.getPolicyId())
-                .orElseThrow(() -> new IllegalArgumentException("policy not found"));
         CodeEntity code = codeRepository.findById(postRequest.getCodeId())
                 .orElseThrow(() -> new IllegalArgumentException("code not found"));
 
-        PostEntity post = postRequest.toEntity(member, policy, code);
+        // policyId는 Nullable
+        PolicyEntity policy = null;
+        if (postRequest.getPolicyId() != null) {
+            policy = policyRepository.findById(postRequest.getPolicyId())
+                    .orElse(null);
+        }
 
+        PostEntity post = postRequest.toEntity(member, policy, code);
         return postRepository.save(post);
     }
 

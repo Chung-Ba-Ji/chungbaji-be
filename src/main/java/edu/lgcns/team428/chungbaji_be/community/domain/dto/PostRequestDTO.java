@@ -1,15 +1,17 @@
 package edu.lgcns.team428.chungbaji_be.community.domain.dto;
 
+import com.fasterxml.jackson.annotation.JsonAlias;
 import edu.lgcns.team428.chungbaji_be.code.domain.entity.CodeEntity;
 import edu.lgcns.team428.chungbaji_be.community.domain.entity.PostEntity;
 import edu.lgcns.team428.chungbaji_be.member.domain.entity.MemberEntity;
 import edu.lgcns.team428.chungbaji_be.policy.domain.entity.PolicyEntity;
 import lombok.*;
 
+@Builder
 @Getter
-@Setter
-@NoArgsConstructor
 @ToString
+@NoArgsConstructor
+@AllArgsConstructor
 public class PostRequestDTO {
 
     private Integer memberId;
