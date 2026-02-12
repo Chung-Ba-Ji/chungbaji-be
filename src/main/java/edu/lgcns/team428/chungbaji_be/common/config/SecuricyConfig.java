@@ -36,7 +36,7 @@ public class SecuricyConfig {
 
         // JwtFilter에서 설정한 preflight 요청 시 응답헤더에 담는 정보 (= 혀용 가능한 요청에 대한 정보)
         CorsConfiguration config = new CorsConfiguration();
-        config.setAllowedOrigins(List.of("http://localhost:3000")); 
+        config.setAllowedOrigins(List.of("http://localhost:3000"));
         config.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "OPTIONS"));
         config.setAllowedHeaders(List.of("Authorization", "Content-Type"));
         config.setExposedHeaders(List.of("Authorization"));
@@ -51,49 +51,54 @@ public class SecuricyConfig {
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
         http
-            // 1. CSRF 및 CORS 설정
-            .csrf(csrf -> csrf.disable()) 
-            .cors(Customizer.withDefaults()) 
+                // 1. CSRF 및 CORS 설정
+                .csrf(csrf -> csrf.disable())
+                .cors(Customizer.withDefaults())
 
-            // 3. 인가(Authorization) 규칙 설정
-            .authorizeHttpRequests(auth -> auth
-                // Swagger 및 API 문서 관련 허용
-                .requestMatchers(
-                    "/swagger-ui/**",
-                    "/v3/api-docs/**",
-                    "/error"
-                ).permitAll()
-                
-                // Preflight 요청(OPTIONS) 전체 허용
-                .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
-                
-                // 인증 없이 접근 가능한 회원 관련 엔드포인트
-                .requestMatchers(
-                    "/api/members/signUp",
-                    "/api/members/login",
-                    "/api/members/searchPwd"
-                ).permitAll()
-                                   
-                // 인증 없이 접근 가능한 정책 관련 엔드포인트                 
-                .requestMatchers(
-                    "/api/policy/**"
-                ).permitAll()
-                
-                // 인증이 반드시 필요한 엔드포인트
-                .requestMatchers(
-                    "/api/members/logout",
-                    "/api/members/update/**",
-                    "/api/members/delete/**",
-                    "/api/bookmarks/**",
-                    "/api/schedule/**"
-                ).authenticated()
-                
-                // 그 외 모든 요청은 인증 필요
-                .anyRequest().authenticated()
-            )
+                // 3. 인가(Authorization) 규칙 설정
+                .authorizeHttpRequests(auth -> auth
+                        // Swagger 및 API 문서 관련 허용
+                        .requestMatchers(
+                                "/swagger-ui/**",
+                                "/v3/api-docs/**",
+                                "/error"
+                        ).permitAll()
 
-            // 4. JWT 필터 배치
-            .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
+                        // Preflight 요청(OPTIONS) 전체 허용
+                        .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
+
+                        // 인증 없이 접근 가능한 회원 관련 엔드포인트
+                        .requestMatchers(
+                                "/api/members/signUp",
+                                "/api/members/login",
+                                "/api/members/searchPwd"
+                        ).permitAll()
+
+                        // 인증 없이 접근 가능한 정책 관련 엔드포인트                 
+                        .requestMatchers(
+                                "/api/policy/**"
+                        ).permitAll()
+                        
+                        // 인증 없이 접근 가능한 지역 관련 엔드포인트
+                        .requestMatchers(
+                                "/api/regions/**"
+                        ).permitAll()
+
+                        // 인증이 반드시 필요한 엔드포인트
+                        .requestMatchers(
+                                "/api/members/logout",
+                                "/api/members/update/**",
+                                "/api/members/delete/**",
+                                "/api/bookmarks/**",
+                                "/api/schedule/**"
+                        ).authenticated()
+
+                        // 그 외 모든 요청은 인증 필요
+                        .anyRequest().authenticated()
+                )
+
+                // 4. JWT 필터 배치
+                .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
 
         return http.build();
     }
