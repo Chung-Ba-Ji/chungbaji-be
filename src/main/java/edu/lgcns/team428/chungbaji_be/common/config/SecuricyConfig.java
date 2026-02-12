@@ -74,6 +74,9 @@ public class SecuricyConfig {
                                 "/api/members/searchPwd"
                         ).permitAll()
 
+                        // 커뮤니티 관련 조회 기능은 비인가 사용자도 이용 가능
+                        .requestMatchers(HttpMethod.GET, "/api/community/**").permitAll()
+
                         // 인증 없이 접근 가능한 정책 관련 엔드포인트                 
                         .requestMatchers(
                                 "/api/policy/**"
@@ -93,6 +96,11 @@ public class SecuricyConfig {
                                 "/api/bookmarks/**",
                                 "/api/schedule/**"
                         ).authenticated()
+
+                        // 커뮤니티 관련 조회, 수정, 삭제 기능은 인가된 사용자만 가능
+                        .requestMatchers(HttpMethod.POST, "/api/community/**").authenticated()
+                        .requestMatchers(HttpMethod.PUT, "/api/community/**").authenticated()
+                        .requestMatchers(HttpMethod.DELETE, "/api/community/**").authenticated()
 
                         // 그 외 모든 요청은 인증 필요
                         .anyRequest().authenticated()

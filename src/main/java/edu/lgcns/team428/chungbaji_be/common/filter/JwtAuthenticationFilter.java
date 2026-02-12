@@ -5,6 +5,7 @@ import java.nio.charset.StandardCharsets;
 import java.security.Key;
 import java.util.List;
 
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -21,15 +22,16 @@ import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 
+@Slf4j
 @Component
 public class JwtAuthenticationFilter extends OncePerRequestFilter {
     @Value("${jwt.secret}")
     private String secret;
     private Key key;
 
-    @PostConstruct  // 서버 기동 시 딱 한번 호출되어 key값 초기화 
+    @PostConstruct
     private void init() {
-        System.out.println("security filter init : " + secret);
+        log.info("Security filter init: {}", secret);
         this.key = Keys.hmacShaKeyFor(secret.getBytes(StandardCharsets.UTF_8));
     }
 
@@ -37,63 +39,50 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain)
             throws ServletException, IOException {
 
-        System.out.println("Spring Security doFilterInternal call");
-
-        // 요청 가로채기 : endpoint 얻어오기
         String endPoint = request.getRequestURI();
-        System.out.println(">>> User Endpoint : " + endPoint);
-
-        // 요청의 종류 (GET, POST, PUT, DELETE)
         String method = request.getMethod();
-        System.out.println(">>> User Request Method : " + method);
 
-        // preflight 실행(사전검사) -> 요청이 적절한 요청인 경우에만 헤더에 규칙을 붙여 응답
-        if ("OPTIONS".equalsIgnoreCase(request.getMethod())) {
-
+        // Preflight(OPTIONS) 요청은 통과
+        if ("OPTIONS".equalsIgnoreCase(method)) {
             filterChain.doFilter(request, response);
             return;
-
         }
 
-        // 토큰 값 가져오기
+        // Authorization 헤더 확인
         String authHeader = request.getHeader("Authorization");
-        System.out.println(">>> security filter authheader: " + authHeader);
 
-        // 토큰의 유효성 검사(헤더값이 없거나 Bearer로 시작하지 않는 경우 : reject)
+        // 토큰이 없거나 형식이 잘못된 경우 다음 필터로 진행 (인가 여부는 SecurityConfig에서 결정)
         if (authHeader == null || !authHeader.startsWith("Bearer ")) {
-            System.out.println(">>> not authorizated");
             filterChain.doFilter(request, response);
             return;
         }
 
-        // 실제 토큰값 획득
         String token = authHeader.substring(7);
-        System.out.println("jwtfilter token : " + token);
-        System.out.println("Spring security filter token validation check");
 
-        // 사용자 정보를 서버에 저장하기 위한 Spring Context 사용
         try {
-            // Claims = JWT의 데이터
-            Claims claims = Jwts.parserBuilder().setSigningKey(key).build().parseClaimsJws(token).getBody();
+            // JWT 검증 및 데이터 파싱
+            Claims claims = Jwts.parserBuilder()
+                    .setSigningKey(key)
+                    .build()
+                    .parseClaimsJws(token)
+                    .getBody();
 
-            // 사용자 정보 획득(PK값 = email)
             String email = claims.getSubject();
-            System.out.println(">>> JwtAuthenticationFilter claims get email : " + email);
 
-            UsernamePasswordAuthenticationToken authentication = new UsernamePasswordAuthenticationToken(
-                    email, null, List.of());
+            if (email != null && SecurityContextHolder.getContext().getAuthentication() == null) {
+                UsernamePasswordAuthenticationToken authentication = new UsernamePasswordAuthenticationToken(
+                        email, null, List.of());
 
-            // 사용자의 요청과 인증정보 객체를 연결
-            authentication.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
+                authentication.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
 
-            // spring context: SecurityContextHolder에 저장
-            SecurityContextHolder.getContext().setAuthentication(authentication);
-
-            filterChain.doFilter(request, response);
+                SecurityContextHolder.getContext().setAuthentication(authentication);
+                log.info("User Authenticate Success: {}", email);
+            }
 
         } catch (Exception e) {
-            e.getStackTrace();
+            log.error("JWT Validation Failed: {}", e.getMessage());
         }
-    }
 
+        filterChain.doFilter(request, response);
+    }
 }
