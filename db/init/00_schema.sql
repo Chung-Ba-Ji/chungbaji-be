@@ -173,7 +173,7 @@ CREATE TABLE bookmark (
 CREATE TABLE post (
     post_id       INT           PRIMARY KEY AUTO_INCREMENT,
     member_id     INT           NOT NULL,
-    policy_id     INT           NOT NULL,
+    policy_id     INT,
     code_id       INT           NOT NULL,
     title         VARCHAR(255)  NOT NULL,
     content       TEXT,
