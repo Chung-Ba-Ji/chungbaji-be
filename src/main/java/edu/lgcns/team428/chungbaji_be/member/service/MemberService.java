@@ -49,8 +49,6 @@ public class MemberService {
      */
     @Transactional
     public MemberResponseDTO signUp(MemberRequestDTO request) {
-        log.info("Member SignUp Call - Parameter: {}", request.toString());
-
         validateSignUpRequest(request);
 
         // 지역 변환: 시군구 코드로 직접 조회
